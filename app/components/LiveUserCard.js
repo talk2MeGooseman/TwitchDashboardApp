@@ -5,6 +5,8 @@ import {
 } from 'react-native';
 import { Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right } from 'native-base';
 
+const MILISECONDS_IN_MINUTE = 60000;
+
 export default class LiveUserCard extends Component {
 
   static propTypes = {
@@ -13,7 +15,8 @@ export default class LiveUserCard extends Component {
     username: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     start_time: PropTypes.string.isRequired,
-    viewers_count: PropTypes.number.isRequired
+    viewers_count: PropTypes.number.isRequired,
+    game_title: PropTypes.string.isRequired
   };
 
   setImageSize(height, width){
@@ -28,16 +31,17 @@ export default class LiveUserCard extends Component {
     let startTime = new Date(this.props.start_time);
     let elapsedTime = Math.abs(startTime.getTime() - Date.now());
 
-    return new Date(elapsedTime).getMinutes();
+    return Math.round(elapsedTime/MILISECONDS_IN_MINUTE);
   }  
 
   render() {
-    const { image_url, user_id, username, title, start_time, viewers_count } = this.props;
+    const { image_url, user_id, username, title, start_time, viewers_count, game_title } = this.props;
     return (
       <Card>
         <CardItem>
           <Body>
             <Text>{username}</Text>
+            <Text note>{game_title}</Text>
             <Text note>{title}</Text>
           </Body>
         </CardItem>
