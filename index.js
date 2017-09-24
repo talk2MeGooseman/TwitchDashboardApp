@@ -15,7 +15,7 @@ import {
   Platform,
   View 
 } from 'react-native';
-import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right, Title, Spinner  } from 'native-base';
+import { Container, Header, Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right, Title, Spinner, Tab, Tabs  } from 'native-base';
 import LiveUserCard from './app/components/LiveUserCard';
 import TwitchAPI from './app/lib/TwitchAPI';
 
@@ -23,8 +23,12 @@ export default class TwitchDashboardApp extends Component {
   constructor() {
     super();
     this.state = {
-      user_cards: [],
-      loading: true
+      live_user_cards: [],
+      following_user_cards: [],
+      vodcast_user_cards: [],
+      live_loading: true,
+      office_loading: true,
+      vodcast_loading: true
     };
 
     if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) { 
@@ -32,8 +36,16 @@ export default class TwitchDashboardApp extends Component {
     }
   }
 
+
+  componentWillMount() {
+    this.populateLiveUsers();
+    this.populateAllUsers();
+    this.populateVodcastingUsers();
+  }
+
   async populateLiveUsers() {
-    const follows = await TwitchAPI.getUsersFollow(120750024);
+    let follows = await TwitchAPI.getUsersFollow(120750024);
+    follows.push(120750024);
     const liveUsers = await TwitchAPI.fetchLiveUsers(follows);
 
     let userList = [];
@@ -49,20 +61,75 @@ export default class TwitchDashboardApp extends Component {
         viewers_count: user.viewer_count,
         start_time: user.started_at,
         image_url: user.thumbnail_url,
-        game_title: usersInfo.game
+        game_title: usersInfo.game,
+        live: true
       };
 
       userList.push(<LiveUserCard { ...passProps } />);
     };
 
     this.setState({
-      user_cards: userList,
-      loading: false
+      live_user_cards: userList,
+      live_loading: false
     });
   }
 
-  renderActivityIndicator() { 
-    if (this.state.loading) { 
+  async populateAllUsers() {
+    const follows = await TwitchAPI.getUsersFollow(120750024);
+
+    let userList = [];
+    for(let user_id of follows)  {
+      let usersInfo = await TwitchAPI.v5fetchUsersInfo(user_id);
+
+      const passProps = {
+        username: usersInfo.display_name,
+        key: user_id,
+        user_id: user_id,
+        image_url: usersInfo.logo || '',
+        followers_count: usersInfo.followers,
+        live: false
+      };
+
+      userList.push(<LiveUserCard { ...passProps } />);
+    };
+
+    this.setState({
+      following_user_cards: userList,
+      offline_loading: false
+    });
+  }
+
+  async populateVodcastingUsers() {
+    const follows = await TwitchAPI.getUsersFollow(120750024);
+    const vods = await TwitchAPI.fetchVodcastUsers(follows);
+
+    let userList = [];
+    for(let vod of vods)  {
+      let usersInfo = await TwitchAPI.v5fetchUsersInfo(vod.user_id);
+
+      const passProps = {
+        username: usersInfo.display_name,
+        key: vod.user_id,
+        user_id: vod.user_id,
+        title: vod.title,
+        viewers_count: vod.viewer_count,
+        start_time: vod.started_at,
+        image_url: vod.thumbnail_url,
+        game_title: usersInfo.game,
+        live: true
+      };
+
+      userList.push(<LiveUserCard { ...passProps } />);
+    };
+
+    this.setState({
+      vodcast_user_cards: userList,
+      vodcast_loading: false
+    });
+  }
+
+  renderActivityIndicator(loading_flag) { 
+    if (this.state[loading_flag]) { 
       return (
         <ActivityIndicator color="white" size="large" style={ styles.spinner } />
       ); 
@@ -71,35 +138,53 @@ export default class TwitchDashboardApp extends Component {
 
   refreshLiveFollows() {
     this.setState({
-      user_cards: [],
-      loading: true
+      live_user_cards: [],
+      following_user_cards: [],
+      vodcast_user_cards: [],
+      live_loading: true,
+      offline_loading: true
     });
 
     this.populateLiveUsers();
+    this.populateAllUsers();
+    this.populateVodcastingUsers();
   }
 
-  componentWillMount() {
-    this.populateLiveUsers();
-  }
-  
   render() {
     return (
        <Container>
-       <Header>
+        <Header hasTabs >
           <Left>
             <Button transparent onPress={ () => { this.refreshLiveFollows() } }>
               <Icon name='refresh' />
             </Button>
           </Left>
           <Body>
-            <Title>Live Channels</Title>
+            <Title>Following</Title>
           </Body>
-          <Right />
-       </Header>
-       <Content style={styles.content}>
-          {this.state.user_cards}
-          {this.renderActivityIndicator()}
-       </Content>
+          <Right>
+          </Right>
+        </Header>
+        <Tabs initialPage={1}>
+          <Tab heading="Live">
+            <Content style={styles.content}>
+              {this.state.live_user_cards}
+              {this.renderActivityIndicator('live_loading')}
+            </Content>
+          </Tab>
+          <Tab heading="VODcasts">
+            <Content style={styles.content}>
+              {this.state.vodcast_user_cards}
+              {this.renderActivityIndicator('vodcast_loading')}
+            </Content>
+          </Tab>
+          <Tab heading="All">
+            <Content style={styles.content}>
+               {this.state.following_user_cards}
+              {this.renderActivityIndicator('offline_loading')}
+            </Content>
+          </Tab>
+        </Tabs>
      </Container>
     );
   }

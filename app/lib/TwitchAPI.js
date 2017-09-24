@@ -27,18 +27,33 @@ export default class TwitchAPI {
     }
 
     static async fetchLiveUsers(user_ids) {
-        const params = user_ids.map((user_id) => `user_id=${user_id}` );
+      const params = user_ids.map((user_id) => `user_id=${user_id}` );
 
-        const response = await fetch(`https://api.twitch.tv/helix/streams?${params.join('&')}&type%20=live&first=100`, { 
-          method: 'GET',
-          headers: {
-            "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
-          }
-        }); 
-    
-        let result = await response.json();
-    
-        return(result.data); 
+      const response = await fetch(`https://api.twitch.tv/helix/streams?${params.join('&')}&type%20=live&first=100`, { 
+        method: 'GET',
+        headers: {
+          "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+        }
+      }); 
+  
+      let result = await response.json();
+  
+      return(result.data); 
+    }
+
+    static async fetchVodcastUsers(user_ids) {
+      const params = user_ids.map((user_id) => `user_id=${user_id}` );
+
+      const response = await fetch(`https://api.twitch.tv/helix/streams?${params.join('&')}&type=vodcast&first=100`, { 
+        method: 'GET',
+        headers: {
+          "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+        }
+      }); 
+  
+      let result = await response.json();
+  
+      return(result.data); 
     }
 
     static async getUsersFollow(user_id) {

@@ -13,10 +13,11 @@ export default class LiveUserCard extends Component {
     image_url: PropTypes.string.isRequired,
     user_id: PropTypes.string.isRequired,
     username: PropTypes.string.isRequired,
-    title: PropTypes.string.isRequired,
-    start_time: PropTypes.string.isRequired,
-    viewers_count: PropTypes.number.isRequired,
-    game_title: PropTypes.string.isRequired
+    title: PropTypes.string,
+    start_time: PropTypes.string,
+    viewers_count: PropTypes.number,
+    game_title: PropTypes.string,
+    followers_count: PropTypes.number
   };
 
   setImageSize(height, width){
@@ -32,7 +33,57 @@ export default class LiveUserCard extends Component {
     let elapsedTime = Math.abs(startTime.getTime() - Date.now());
 
     return Math.round(elapsedTime/MILISECONDS_IN_MINUTE);
-  }  
+  }
+
+  getCardFooter() {
+    if (this.props.live) {
+      return this.createLiveFooter();
+    } else {
+      return this.createOfflineFooter();
+    }
+  }
+
+  createLiveFooter() {
+    return (
+      <CardItem>
+        <Left>
+          <Button transparent>
+            <Icon active name="people" />
+            <Text>{this.props.viewers_count} Viewers</Text>
+          </Button>
+        </Left>
+        <Body>
+          <Button transparent>
+            <Icon active name="videocam" />
+            <Text>Live for {this.getLiveDuration()} min</Text>
+          </Button>
+        </Body>
+      </CardItem>
+    );
+  }
+
+  createOfflineFooter() {
+    return (
+      <CardItem>
+        <Left>
+          <Button transparent>
+            <Icon active name="people" />
+            <Text>{this.props.followers_count} Followers</Text>
+          </Button>
+        </Left>
+      </CardItem>
+    );
+  }
+
+  getCardLiveHeaderMetadata() {
+    let jsxElements = [];
+    if(this.props.live) {
+      jsxElements.push(<Text note>{this.props.game_title}</Text>);
+      jsxElements.push(<Text note>{this.props.title}</Text>);
+    }
+
+    return jsxElements;
+  }
 
   render() {
     const { image_url, user_id, username, title, start_time, viewers_count, game_title } = this.props;
@@ -41,27 +92,13 @@ export default class LiveUserCard extends Component {
         <CardItem>
           <Body>
             <Text>{username}</Text>
-            <Text note>{game_title}</Text>
-            <Text note>{title}</Text>
+            { this.getCardLiveHeaderMetadata() }
           </Body>
         </CardItem>
         <CardItem cardBody>
-          <Image source={ {uri: this.setImageSize(200, 356)} } style={{ height: 200, width: null, flex: 1 }} />
+          <Image source={ {uri: this.setImageSize(300, 533)} } style={{ height: 300, width: null, flex: 1 }} />
         </CardItem>
-        <CardItem>
-          <Left>
-            <Button transparent>
-              <Icon active name="people" />
-              <Text>{viewers_count} Viewers</Text>
-            </Button>
-          </Left>
-          <Body>
-            <Button transparent>
-              <Icon active name="videocam" />
-              <Text>Live for {this.getLiveDuration()} min</Text>
-            </Button>
-          </Body>
-        </CardItem>
+        { this.getCardFooter() }
       </Card>
     );
   }

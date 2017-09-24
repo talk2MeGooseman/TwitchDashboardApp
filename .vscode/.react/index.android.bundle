@@ -1315,8 +1315,12 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
     var _this = _possibleConstructorReturn(this, (TwitchDashboardApp.__proto__ || Object.getPrototypeOf(TwitchDashboardApp)).call(this));
 
     _this.state = {
-      user_cards: [],
-      loading: true
+      live_user_cards: [],
+      following_user_cards: [],
+      vodcast_user_cards: [],
+      live_loading: true,
+      office_loading: true,
+      vodcast_loading: true
     };
 
     if (_reactNative.Platform.OS === 'android' && _reactNative.UIManager.setLayoutAnimationEnabledExperimental) {
@@ -1326,6 +1330,13 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
   }
 
   _createClass(TwitchDashboardApp, [{
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      this.populateLiveUsers();
+      this.populateNonLiveUsers();
+      this.populateVodcastingUsers();
+    }
+  }, {
     key: 'populateLiveUsers',
     value: function populateLiveUsers() {
       var follows, liveUsers, userList, _iterator, _isArray, _i, _ref, user, usersInfo, passProps;
@@ -1339,51 +1350,53 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
 
             case 2:
               follows = _context.sent;
-              _context.next = 5;
+
+              follows.push(120750024);
+              _context.next = 6;
               return regeneratorRuntime.awrap(_TwitchAPI2.default.fetchLiveUsers(follows));
 
-            case 5:
+            case 6:
               liveUsers = _context.sent;
               userList = [];
               _iterator = liveUsers, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[typeof Symbol === 'function' ? typeof Symbol === 'function' ? Symbol.iterator : '@@iterator' : '@@iterator']();
 
-            case 8:
+            case 9:
               if (!_isArray) {
-                _context.next = 14;
+                _context.next = 15;
                 break;
               }
 
               if (!(_i >= _iterator.length)) {
-                _context.next = 11;
+                _context.next = 12;
                 break;
               }
 
-              return _context.abrupt('break', 26);
+              return _context.abrupt('break', 27);
 
-            case 11:
+            case 12:
               _ref = _iterator[_i++];
-              _context.next = 18;
+              _context.next = 19;
               break;
 
-            case 14:
+            case 15:
               _i = _iterator.next();
 
               if (!_i.done) {
-                _context.next = 17;
+                _context.next = 18;
                 break;
               }
 
-              return _context.abrupt('break', 26);
-
-            case 17:
-              _ref = _i.value;
+              return _context.abrupt('break', 27);
 
             case 18:
+              _ref = _i.value;
+
+            case 19:
               user = _ref;
-              _context.next = 21;
+              _context.next = 22;
               return regeneratorRuntime.awrap(_TwitchAPI2.default.v5fetchUsersInfo(user.user_id));
 
-            case 21:
+            case 22:
               usersInfo = _context.sent;
               passProps = {
                 username: usersInfo.display_name,
@@ -1393,30 +1406,31 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
                 viewers_count: user.viewer_count,
                 start_time: user.started_at,
                 image_url: user.thumbnail_url,
-                game_title: usersInfo.game
+                game_title: usersInfo.game,
+                live: true
               };
 
 
               userList.push(_react3.default.createElement(_LiveUserCard2.default, _extends({}, passProps, {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 55
+                  lineNumber: 68
                 }
               })));
 
-            case 24:
-              _context.next = 8;
+            case 25:
+              _context.next = 9;
               break;
 
-            case 26:
+            case 27:
               ;
 
               this.setState({
-                user_cards: userList,
-                loading: false
+                live_user_cards: userList,
+                live_loading: false
               });
 
-            case 28:
+            case 29:
             case 'end':
               return _context.stop();
           }
@@ -1424,12 +1438,202 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
       }, null, this);
     }
   }, {
+    key: 'populateNonLiveUsers',
+    value: function populateNonLiveUsers() {
+      var follows, userList, _iterator2, _isArray2, _i2, _ref2, user_id, usersInfo, passProps;
+
+      return regeneratorRuntime.async(function populateNonLiveUsers$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _context2.next = 2;
+              return regeneratorRuntime.awrap(_TwitchAPI2.default.getUsersFollow(120750024));
+
+            case 2:
+              follows = _context2.sent;
+              userList = [];
+              _iterator2 = follows, _isArray2 = Array.isArray(_iterator2), _i2 = 0, _iterator2 = _isArray2 ? _iterator2 : _iterator2[typeof Symbol === 'function' ? typeof Symbol === 'function' ? Symbol.iterator : '@@iterator' : '@@iterator']();
+
+            case 5:
+              if (!_isArray2) {
+                _context2.next = 11;
+                break;
+              }
+
+              if (!(_i2 >= _iterator2.length)) {
+                _context2.next = 8;
+                break;
+              }
+
+              return _context2.abrupt('break', 23);
+
+            case 8:
+              _ref2 = _iterator2[_i2++];
+              _context2.next = 15;
+              break;
+
+            case 11:
+              _i2 = _iterator2.next();
+
+              if (!_i2.done) {
+                _context2.next = 14;
+                break;
+              }
+
+              return _context2.abrupt('break', 23);
+
+            case 14:
+              _ref2 = _i2.value;
+
+            case 15:
+              user_id = _ref2;
+              _context2.next = 18;
+              return regeneratorRuntime.awrap(_TwitchAPI2.default.v5fetchUsersInfo(user_id));
+
+            case 18:
+              usersInfo = _context2.sent;
+              passProps = {
+                username: usersInfo.display_name,
+                key: user_id,
+                user_id: user_id,
+                image_url: usersInfo.logo || '',
+                followers_count: usersInfo.followers,
+                live: false
+              };
+
+
+              userList.push(_react3.default.createElement(_LiveUserCard2.default, _extends({}, passProps, {
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 93
+                }
+              })));
+
+            case 21:
+              _context2.next = 5;
+              break;
+
+            case 23:
+              ;
+
+              this.setState({
+                following_user_cards: userList,
+                offline_loading: false
+              });
+
+            case 25:
+            case 'end':
+              return _context2.stop();
+          }
+        }
+      }, null, this);
+    }
+  }, {
+    key: 'populateVodcastingUsers',
+    value: function populateVodcastingUsers() {
+      var follows, vods, userList, _iterator3, _isArray3, _i3, _ref3, vod, usersInfo, passProps;
+
+      return regeneratorRuntime.async(function populateVodcastingUsers$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              _context3.next = 2;
+              return regeneratorRuntime.awrap(_TwitchAPI2.default.getUsersFollow(120750024));
+
+            case 2:
+              follows = _context3.sent;
+              _context3.next = 5;
+              return regeneratorRuntime.awrap(_TwitchAPI2.default.fetchVodcastUsers(follows));
+
+            case 5:
+              vods = _context3.sent;
+              userList = [];
+              _iterator3 = vods, _isArray3 = Array.isArray(_iterator3), _i3 = 0, _iterator3 = _isArray3 ? _iterator3 : _iterator3[typeof Symbol === 'function' ? typeof Symbol === 'function' ? Symbol.iterator : '@@iterator' : '@@iterator']();
+
+            case 8:
+              if (!_isArray3) {
+                _context3.next = 14;
+                break;
+              }
+
+              if (!(_i3 >= _iterator3.length)) {
+                _context3.next = 11;
+                break;
+              }
+
+              return _context3.abrupt('break', 26);
+
+            case 11:
+              _ref3 = _iterator3[_i3++];
+              _context3.next = 18;
+              break;
+
+            case 14:
+              _i3 = _iterator3.next();
+
+              if (!_i3.done) {
+                _context3.next = 17;
+                break;
+              }
+
+              return _context3.abrupt('break', 26);
+
+            case 17:
+              _ref3 = _i3.value;
+
+            case 18:
+              vod = _ref3;
+              _context3.next = 21;
+              return regeneratorRuntime.awrap(_TwitchAPI2.default.v5fetchUsersInfo(vod.user_id));
+
+            case 21:
+              usersInfo = _context3.sent;
+              passProps = {
+                username: usersInfo.display_name,
+                key: vod.user_id,
+                user_id: vod.user_id,
+                title: vod.title,
+                viewers_count: vod.viewer_count,
+                start_time: vod.started_at,
+                image_url: vod.thumbnail_url,
+                game_title: usersInfo.game,
+                live: true
+              };
+
+
+              userList.push(_react3.default.createElement(_LiveUserCard2.default, _extends({}, passProps, {
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 122
+                }
+              })));
+
+            case 24:
+              _context3.next = 8;
+              break;
+
+            case 26:
+              ;
+
+              this.setState({
+                vodcast_user_cards: userList,
+                vodcast_loading: false
+              });
+
+            case 28:
+            case 'end':
+              return _context3.stop();
+          }
+        }
+      }, null, this);
+    }
+  }, {
     key: 'renderActivityIndicator',
-    value: function renderActivityIndicator() {
-      if (this.state.loading) {
+    value: function renderActivityIndicator(loading_flag) {
+      if (this.state[loading_flag]) {
         return _react3.default.createElement(_reactNative.ActivityIndicator, { color: 'white', size: 'large', style: styles.spinner, __source: {
             fileName: _jsxFileName,
-            lineNumber: 67
+            lineNumber: 134
           }
         });
       }
@@ -1439,15 +1643,14 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
     value: function refreshLiveFollows() {
       this.setState({
         user_cards: [],
-        loading: true
+        following_user_cards: [],
+        live_loading: true,
+        offline_loading: true
       });
 
       this.populateLiveUsers();
-    }
-  }, {
-    key: 'componentWillMount',
-    value: function componentWillMount() {
-      this.populateLiveUsers();
+      this.populateNonLiveUsers();
+      this.populateVodcastingUsers();
     }
   }, {
     key: 'render',
@@ -1459,15 +1662,14 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
         {
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 87
+            lineNumber: 154
           }
         },
         _react3.default.createElement(
           _nativeBase.Header,
-          {
-            __source: {
+          { hasTabs: true, __source: {
               fileName: _jsxFileName,
-              lineNumber: 88
+              lineNumber: 155
             }
           },
           _react3.default.createElement(
@@ -1475,7 +1677,7 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
             {
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 89
+                lineNumber: 156
               }
             },
             _react3.default.createElement(
@@ -1484,12 +1686,12 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
                   _this2.refreshLiveFollows();
                 }, __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 90
+                  lineNumber: 157
                 }
               },
               _react3.default.createElement(_nativeBase.Icon, { name: 'refresh', __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 91
+                  lineNumber: 158
                 }
               })
             )
@@ -1499,7 +1701,7 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
             {
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 94
+                lineNumber: 161
               }
             },
             _react3.default.createElement(
@@ -1507,28 +1709,80 @@ var TwitchDashboardApp = _wrapComponent('TwitchDashboardApp')(function (_Compone
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 95
+                  lineNumber: 162
                 }
               },
-              'Live Channels'
+              'Following'
             )
           ),
           _react3.default.createElement(_nativeBase.Right, {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 97
+              lineNumber: 164
             }
           })
         ),
         _react3.default.createElement(
-          _nativeBase.Content,
-          { style: styles.content, __source: {
+          _nativeBase.Tabs,
+          { initialPage: 1, __source: {
               fileName: _jsxFileName,
-              lineNumber: 99
+              lineNumber: 167
             }
           },
-          this.state.user_cards,
-          this.renderActivityIndicator()
+          _react3.default.createElement(
+            _nativeBase.Tab,
+            { heading: 'Live', __source: {
+                fileName: _jsxFileName,
+                lineNumber: 168
+              }
+            },
+            _react3.default.createElement(
+              _nativeBase.Content,
+              { style: styles.content, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 169
+                }
+              },
+              this.state.live_user_cards,
+              this.renderActivityIndicator('live_loading')
+            )
+          ),
+          _react3.default.createElement(
+            _nativeBase.Tab,
+            { heading: 'Offline', __source: {
+                fileName: _jsxFileName,
+                lineNumber: 174
+              }
+            },
+            _react3.default.createElement(
+              _nativeBase.Content,
+              { style: styles.content, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 175
+                }
+              },
+              this.state.following_user_cards,
+              this.renderActivityIndicator('offline_loading')
+            )
+          ),
+          _react3.default.createElement(
+            _nativeBase.Tab,
+            { heading: 'VODcasts', __source: {
+                fileName: _jsxFileName,
+                lineNumber: 180
+              }
+            },
+            _react3.default.createElement(
+              _nativeBase.Content,
+              { style: styles.content, __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 181
+                }
+              },
+              this.state.vodcast_user_cards,
+              this.renderActivityIndicator('vodcast_loading')
+            )
+          )
         )
       );
     }
@@ -94489,6 +94743,168 @@ var LiveUserCard = _wrapComponent('LiveUserCard')((_temp = _class = function (_C
       return Math.round(elapsedTime / MILISECONDS_IN_MINUTE);
     }
   }, {
+    key: 'getCardFooter',
+    value: function getCardFooter() {
+      if (this.props.live) {
+        return this.createLiveFooter();
+      } else {
+        return this.createOfflineFooter();
+      }
+    }
+  }, {
+    key: 'createLiveFooter',
+    value: function createLiveFooter() {
+      return _react3.default.createElement(
+        _nativeBase.CardItem,
+        {
+          __source: {
+            fileName: _jsxFileName,
+            lineNumber: 48
+          }
+        },
+        _react3.default.createElement(
+          _nativeBase.Left,
+          {
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 49
+            }
+          },
+          _react3.default.createElement(
+            _nativeBase.Button,
+            { transparent: true, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 50
+              }
+            },
+            _react3.default.createElement(_nativeBase.Icon, { active: true, name: 'people', __source: {
+                fileName: _jsxFileName,
+                lineNumber: 51
+              }
+            }),
+            _react3.default.createElement(
+              _nativeBase.Text,
+              {
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 52
+                }
+              },
+              this.props.viewers_count,
+              ' Viewers'
+            )
+          )
+        ),
+        _react3.default.createElement(
+          _nativeBase.Body,
+          {
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 55
+            }
+          },
+          _react3.default.createElement(
+            _nativeBase.Button,
+            { transparent: true, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 56
+              }
+            },
+            _react3.default.createElement(_nativeBase.Icon, { active: true, name: 'videocam', __source: {
+                fileName: _jsxFileName,
+                lineNumber: 57
+              }
+            }),
+            _react3.default.createElement(
+              _nativeBase.Text,
+              {
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 58
+                }
+              },
+              'Live for ',
+              this.getLiveDuration(),
+              ' min'
+            )
+          )
+        )
+      );
+    }
+  }, {
+    key: 'createOfflineFooter',
+    value: function createOfflineFooter() {
+      return _react3.default.createElement(
+        _nativeBase.CardItem,
+        {
+          __source: {
+            fileName: _jsxFileName,
+            lineNumber: 67
+          }
+        },
+        _react3.default.createElement(
+          _nativeBase.Left,
+          {
+            __source: {
+              fileName: _jsxFileName,
+              lineNumber: 68
+            }
+          },
+          _react3.default.createElement(
+            _nativeBase.Button,
+            { transparent: true, __source: {
+                fileName: _jsxFileName,
+                lineNumber: 69
+              }
+            },
+            _react3.default.createElement(_nativeBase.Icon, { active: true, name: 'people', __source: {
+                fileName: _jsxFileName,
+                lineNumber: 70
+              }
+            }),
+            _react3.default.createElement(
+              _nativeBase.Text,
+              {
+                __source: {
+                  fileName: _jsxFileName,
+                  lineNumber: 71
+                }
+              },
+              this.props.followers_count,
+              ' Followers'
+            )
+          )
+        )
+      );
+    }
+  }, {
+    key: 'getCardLiveHeaderMetadata',
+    value: function getCardLiveHeaderMetadata() {
+      var jsxElements = [];
+      if (this.props.live) {
+        jsxElements.push(_react3.default.createElement(
+          _nativeBase.Text,
+          { note: true, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 81
+            }
+          },
+          this.props.game_title
+        ));
+        jsxElements.push(_react3.default.createElement(
+          _nativeBase.Text,
+          { note: true, __source: {
+              fileName: _jsxFileName,
+              lineNumber: 82
+            }
+          },
+          this.props.title
+        ));
+      }
+
+      return jsxElements;
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _props = this.props,
@@ -94505,7 +94921,7 @@ var LiveUserCard = _wrapComponent('LiveUserCard')((_temp = _class = function (_C
         {
           __source: {
             fileName: _jsxFileName,
-            lineNumber: 40
+            lineNumber: 91
           }
         },
         _react3.default.createElement(
@@ -94513,7 +94929,7 @@ var LiveUserCard = _wrapComponent('LiveUserCard')((_temp = _class = function (_C
           {
             __source: {
               fileName: _jsxFileName,
-              lineNumber: 41
+              lineNumber: 92
             }
           },
           _react3.default.createElement(
@@ -94521,7 +94937,7 @@ var LiveUserCard = _wrapComponent('LiveUserCard')((_temp = _class = function (_C
             {
               __source: {
                 fileName: _jsxFileName,
-                lineNumber: 42
+                lineNumber: 93
               }
             },
             _react3.default.createElement(
@@ -94529,120 +94945,28 @@ var LiveUserCard = _wrapComponent('LiveUserCard')((_temp = _class = function (_C
               {
                 __source: {
                   fileName: _jsxFileName,
-                  lineNumber: 43
+                  lineNumber: 94
                 }
               },
               username
             ),
-            _react3.default.createElement(
-              _nativeBase.Text,
-              { note: true, __source: {
-                  fileName: _jsxFileName,
-                  lineNumber: 44
-                }
-              },
-              game_title
-            ),
-            _react3.default.createElement(
-              _nativeBase.Text,
-              { note: true, __source: {
-                  fileName: _jsxFileName,
-                  lineNumber: 45
-                }
-              },
-              title
-            )
+            this.getCardLiveHeaderMetadata()
           )
         ),
         _react3.default.createElement(
           _nativeBase.CardItem,
           { cardBody: true, __source: {
               fileName: _jsxFileName,
-              lineNumber: 48
+              lineNumber: 98
             }
           },
-          _react3.default.createElement(_reactNative.Image, { source: { uri: this.setImageSize(200, 356) }, style: { height: 200, width: null, flex: 1 }, __source: {
+          _react3.default.createElement(_reactNative.Image, { source: { uri: this.setImageSize(300, 533) }, style: { height: 300, width: null, flex: 1 }, __source: {
               fileName: _jsxFileName,
-              lineNumber: 49
+              lineNumber: 99
             }
           })
         ),
-        _react3.default.createElement(
-          _nativeBase.CardItem,
-          {
-            __source: {
-              fileName: _jsxFileName,
-              lineNumber: 51
-            }
-          },
-          _react3.default.createElement(
-            _nativeBase.Left,
-            {
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 52
-              }
-            },
-            _react3.default.createElement(
-              _nativeBase.Button,
-              { transparent: true, __source: {
-                  fileName: _jsxFileName,
-                  lineNumber: 53
-                }
-              },
-              _react3.default.createElement(_nativeBase.Icon, { active: true, name: 'people', __source: {
-                  fileName: _jsxFileName,
-                  lineNumber: 54
-                }
-              }),
-              _react3.default.createElement(
-                _nativeBase.Text,
-                {
-                  __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 55
-                  }
-                },
-                viewers_count,
-                ' Viewers'
-              )
-            )
-          ),
-          _react3.default.createElement(
-            _nativeBase.Body,
-            {
-              __source: {
-                fileName: _jsxFileName,
-                lineNumber: 58
-              }
-            },
-            _react3.default.createElement(
-              _nativeBase.Button,
-              { transparent: true, __source: {
-                  fileName: _jsxFileName,
-                  lineNumber: 59
-                }
-              },
-              _react3.default.createElement(_nativeBase.Icon, { active: true, name: 'videocam', __source: {
-                  fileName: _jsxFileName,
-                  lineNumber: 60
-                }
-              }),
-              _react3.default.createElement(
-                _nativeBase.Text,
-                {
-                  __source: {
-                    fileName: _jsxFileName,
-                    lineNumber: 61
-                  }
-                },
-                'Live for ',
-                this.getLiveDuration(),
-                ' min'
-              )
-            )
-          )
-        )
+        this.getCardFooter()
       );
     }
   }]);
@@ -94652,10 +94976,11 @@ var LiveUserCard = _wrapComponent('LiveUserCard')((_temp = _class = function (_C
   image_url: _propTypes2.default.string.isRequired,
   user_id: _propTypes2.default.string.isRequired,
   username: _propTypes2.default.string.isRequired,
-  title: _propTypes2.default.string.isRequired,
-  start_time: _propTypes2.default.string.isRequired,
-  viewers_count: _propTypes2.default.number.isRequired,
-  game_title: _propTypes2.default.string.isRequired
+  title: _propTypes2.default.string,
+  start_time: _propTypes2.default.string,
+  viewers_count: _propTypes2.default.number,
+  game_title: _propTypes2.default.string,
+  followers_count: _propTypes2.default.number
 }, _temp));
 
 exports.default = LiveUserCard;
@@ -94774,14 +95099,49 @@ var TwitchAPI = function () {
             }, null, this);
         }
     }, {
-        key: "getUsersFollow",
-        value: function getUsersFollow(user_id) {
-            var response, result, followed;
-            return regeneratorRuntime.async(function getUsersFollow$(_context4) {
+        key: "fetchVodcastUsers",
+        value: function fetchVodcastUsers(user_ids) {
+            var params, response, result;
+            return regeneratorRuntime.async(function fetchVodcastUsers$(_context4) {
                 while (1) {
                     switch (_context4.prev = _context4.next) {
                         case 0:
-                            _context4.next = 2;
+                            params = user_ids.map(function (user_id) {
+                                return "user_id=" + user_id;
+                            });
+                            _context4.next = 3;
+                            return regeneratorRuntime.awrap(fetch("https://api.twitch.tv/helix/streams?" + params.join('&') + "&type%20=vodcast&first=100", {
+                                method: 'GET',
+                                headers: {
+                                    "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x"
+                                }
+                            }));
+
+                        case 3:
+                            response = _context4.sent;
+                            _context4.next = 6;
+                            return regeneratorRuntime.awrap(response.json());
+
+                        case 6:
+                            result = _context4.sent;
+                            return _context4.abrupt("return", result.data);
+
+                        case 8:
+                        case "end":
+                            return _context4.stop();
+                    }
+                }
+            }, null, this);
+        }
+    }, {
+        key: "getUsersFollow",
+        value: function getUsersFollow(user_id) {
+            var response, result, followed;
+            return regeneratorRuntime.async(function getUsersFollow$(_context5) {
+                while (1) {
+                    switch (_context5.prev = _context5.next) {
+                        case 0:
+                            _context5.next = 2;
                             return regeneratorRuntime.awrap(fetch("https://api.twitch.tv/helix/users/follows?from_id=" + user_id + "&first=100", {
                                 method: 'GET',
                                 headers: {
@@ -94790,20 +95150,20 @@ var TwitchAPI = function () {
                             }));
 
                         case 2:
-                            response = _context4.sent;
-                            _context4.next = 5;
+                            response = _context5.sent;
+                            _context5.next = 5;
                             return regeneratorRuntime.awrap(response.json());
 
                         case 5:
-                            result = _context4.sent;
+                            result = _context5.sent;
                             followed = result.data.map(function (item) {
                                 return item.to_id;
                             });
-                            return _context4.abrupt("return", followed);
+                            return _context5.abrupt("return", followed);
 
                         case 8:
                         case "end":
-                            return _context4.stop();
+                            return _context5.stop();
                     }
                 }
             }, null, this);
