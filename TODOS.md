@@ -1,6 +1,6 @@
 # Twitch App TODOs
 
-* Add in filtering:
+[DONE!] Add in filtering:
     * You can see all the users you follow
     * Filter for live users
     * Filter for the ones that are doing VODcasts
@@ -9,5 +9,5 @@
     * By duration
     * By Game
     * By name
-* Add messaging that no one is live right now
+[DONE!] Add messaging that no one is live right now or no one is vodcasting
 * Refactor TwitchAPI.js to make it more DRY

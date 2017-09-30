@@ -26,6 +26,7 @@ export default class TwitchDashboardApp extends Component {
       live_user_cards: [],
       following_user_cards: [],
       vodcast_user_cards: [],
+      follows: [],
       live_loading: true,
       office_loading: true,
       vodcast_loading: true
@@ -36,17 +37,29 @@ export default class TwitchDashboardApp extends Component {
     }
   }
 
+  componentDidMount() {
+    this.loadTabs();
+  }
 
-  componentWillMount() {
-    this.populateLiveUsers();
-    this.populateAllUsers();
-    this.populateVodcastingUsers();
+  componentDidUpdate(prevProps, prevState) {
+    if(prevState.follows != this.state.follows) {
+      this.populateLiveUsers();
+      this.populateAllUsers();
+      this.populateVodcastingUsers();
+    }
+  }
+
+  async loadTabs() {
+    let follows = await TwitchAPI.getUsersFollow(120750024);
+    follows.push(120750024);
+    
+    this.setState({
+      follows: follows
+    });
   }
 
   async populateLiveUsers() {
-    let follows = await TwitchAPI.getUsersFollow(120750024);
-    follows.push(120750024);
-    const liveUsers = await TwitchAPI.fetchLiveUsers(follows);
+    const liveUsers = await TwitchAPI.fetchLiveUsers(this.state.follows);
 
     let userList = [];
 
@@ -75,10 +88,8 @@ export default class TwitchDashboardApp extends Component {
   }
 
   async populateAllUsers() {
-    const follows = await TwitchAPI.getUsersFollow(120750024);
-
     let userList = [];
-    for(let user_id of follows)  {
+    for(let user_id of this.state.follows)  {
       let usersInfo = await TwitchAPI.v5fetchUsersInfo(user_id);
 
       const passProps = {
@@ -100,8 +111,7 @@ export default class TwitchDashboardApp extends Component {
   }
 
   async populateVodcastingUsers() {
-    const follows = await TwitchAPI.getUsersFollow(120750024);
-    const vods = await TwitchAPI.fetchVodcastUsers(follows);
+    const vods = await TwitchAPI.fetchVodcastUsers(this.state.follows);
 
     let userList = [];
     for(let vod of vods)  {
@@ -142,12 +152,38 @@ export default class TwitchDashboardApp extends Component {
       following_user_cards: [],
       vodcast_user_cards: [],
       live_loading: true,
-      offline_loading: true
+      offline_loading: true,
+      vodcast_loading: true
     });
 
     this.populateLiveUsers();
     this.populateAllUsers();
     this.populateVodcastingUsers();
+  }
+
+  renderEmptyText(tab, count) {
+    if(count !== 0 || !this.state[tabName]) return; 
+    let tabName = "";
+    
+    switch (tab) {
+      case 'live_loading':
+        tabName = 'live';
+        break;
+      case 'offline_loading':
+        tabName = 'is being followed';
+        break;
+      case 'vodcast_loading':
+        tabName = 'VODCast';
+        break;
+      default:
+        break;
+    }
+
+    return(
+      <Text style={styles.emptyText}>
+        {`No one ${tabName} right now`}
+      </Text>
+    );
   }
 
   render() {
@@ -165,23 +201,26 @@ export default class TwitchDashboardApp extends Component {
           <Right>
           </Right>
         </Header>
-        <Tabs initialPage={1}>
+        <Tabs initialPage={0}>
           <Tab heading="Live">
             <Content style={styles.content}>
               {this.state.live_user_cards}
               {this.renderActivityIndicator('live_loading')}
+              {this.renderEmptyText('live_loading', this.state.live_user_cards.length)}
             </Content>
           </Tab>
           <Tab heading="VODcasts">
             <Content style={styles.content}>
               {this.state.vodcast_user_cards}
               {this.renderActivityIndicator('vodcast_loading')}
+              {this.renderEmptyText('vodcast_loading', this.state.vodcast_user_cards.length)}
             </Content>
           </Tab>
           <Tab heading="All">
             <Content style={styles.content}>
                {this.state.following_user_cards}
               {this.renderActivityIndicator('offline_loading')}
+              {this.renderEmptyText('offline_loading', this.state.following_user_cards.length)}
             </Content>
           </Tab>
         </Tabs>
@@ -193,13 +232,20 @@ export default class TwitchDashboardApp extends Component {
 const styles = StyleSheet.create({
   content: {
     backgroundColor: 'gray',
-    flex: 1
+    flex: 1,
   },
   spinner: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: "center"
+  },
+  emptyText: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: "center",
+    color: 'white'
   }
 });
 
