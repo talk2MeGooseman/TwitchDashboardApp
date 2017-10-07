@@ -32,7 +32,7 @@ const TRENDING = 1;
 export default class TrendingClipsView extends Component {
     static propTypes = {
         twitchAPI: PropTypes.object,
-        trending: PropTypes.boolean,
+        trending: PropTypes.bool,
         count: PropTypes.number
     };
 
@@ -79,7 +79,9 @@ export default class TrendingClipsView extends Component {
             game_title: clip.game,
             created_at: clip.created_at,
             url: clip.url,
-            title: clip.title
+            embed_url: clip.embed_url,
+            title: clip.title,
+            toggleOverlay: this.props.toggleOverlay
           };
     
           jsxElements.push(<ClipCard { ...passProps } />);

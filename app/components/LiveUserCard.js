@@ -96,7 +96,12 @@ export default class LiveUserCard extends Component {
           </Body>
         </CardItem>
         <CardItem cardBody>
-          <Image source={ {uri: this.setImageSize(300, 533)} } style={{ height: 300, width: null, flex: 1 }} />
+          <Button transparent onPress={alert}>
+            <Image 
+              source={ {uri: this.setImageSize(300, 533)} }
+              style={{ height: 300, width: null, flex: 1 }}
+            />
+          </Button>
         </CardItem>
         { this.getCardFooter() }
       </Card>

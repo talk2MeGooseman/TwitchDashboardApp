@@ -10,6 +10,9 @@ import {
   LayoutAnimation,
   ActivityIndicator,
   Platform,
+  WebView,
+  View,
+  Dimensions,
 } from 'react-native';
 import { 
   Container,
@@ -33,6 +36,7 @@ import {
 import ClipCard from '../components/ClipCard';
 import TwitchAPI from '../lib/TwitchAPI';
 import TrendingClipsList from '../components/TrendingClipsList';
+import WebViewOverlay from '../components/WebViewOverlay';
 
 const MOST_VIEWED = 0;
 const TRENDING = 1;
@@ -52,7 +56,9 @@ export default class TrendingClipsView extends Component {
       super();
       this.state = {
         loading: true,
-        authed: false
+        authed: false,
+        showVideoOverlay: false,
+        overlayUrl: 'https://clips.twitch.tv/embed?clip=AmazonianEncouragingLyrebirdAllenHuhu&tt_medium=clips_api&tt_content=embed'
       };
   
       this.twitchAPI = new TwitchAPI();
@@ -68,10 +74,17 @@ export default class TrendingClipsView extends Component {
       });
     }
 
+    toggleVideoOverlay(url) {
+      this.setState({
+        showVideoOverlay: !this.state.showVideoOverlay,
+        overlayUrl: url
+      });
+    }
+
     // TODO: WTF IS THIS OK TO DO?
     displayClips(trending) {
       if(this.state.authed){
-        return(<TrendingClipsList twitchAPI={this.twitchAPI} trending={trending} count={this.state.count} />);
+        return(<TrendingClipsList twitchAPI={this.twitchAPI} toggleOverlay={ this.toggleVideoOverlay.bind(this) } trending={trending} count={this.state.count} />);
       } else {
         return;
       }
@@ -90,7 +103,7 @@ export default class TrendingClipsView extends Component {
     
     userSelectedOption(index) {
       //this.setState({ clicked: BUTTONS[buttonIndex] });
-      let count = 25;
+      let count = this.state.count;
       switch (index) {
         case CLIPS_25:
           count = 25;
@@ -113,9 +126,15 @@ export default class TrendingClipsView extends Component {
       });
     }
 
+    renderVideoOverlay() {
+      if(!this.state.showVideoOverlay) return;
+
+      return <WebViewOverlay url={this.state.overlayUrl} toggleOverlay={this.toggleVideoOverlay.bind(this)} />
+    }
+
     render() {
       return (
-         <Container>
+        <Container>
           <Header hasTabs>
             <Right>
               <Button onPress={() => this.displayFilterOption() }>
@@ -131,18 +150,7 @@ export default class TrendingClipsView extends Component {
               {this.displayClips(true)}
             </Tab>
           </Tabs>
-          <Footer>
-            <FooterTab>
-              <Button vertical>
-                <Icon active name="trending-up" />
-                <Text>My Top Clips</Text>
-              </Button>
-              <Button vertical>
-                <Icon name="camera" />
-                <Text>Subs and Follows</Text>
-              </Button>
-            </FooterTab>
-          </Footer>
+          {this.renderVideoOverlay()}
         </Container>
       );
     }
