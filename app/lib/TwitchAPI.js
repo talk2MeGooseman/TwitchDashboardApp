@@ -1,4 +1,4 @@
-import { Linking } from 'react-native';
+import { Linking, AsyncStorage } from 'react-native';
 
 const CLIENT_ID = 'imgxjm3xjyq0kupk8ln0s11b3bpu1x';
 const REDIRECT_URI = 'app://localhost/twitchdashboardapp';
@@ -17,7 +17,11 @@ export default class TwitchAPI {
 
       function handleAccessTokenResponse(event){
         const access_token = event.url.toString().match( /access_token=([^&]+)/ );
-        if(access_token) {
+        if (Array.isArray(access_token) && access_token.length === 2) {
+          this.access_token = access_token[1];
+          AsyncStorage.setItem('ACCESS_TOKEN:key',  this.access_token);
+          callback(access_token[1]);
+        } else if(access_token) {
           this.access_token = access_token;
           callback(access_token);
         }
@@ -25,17 +29,23 @@ export default class TwitchAPI {
     }
 
     async getTopClipsForUser({trending, cursor="", count=25}) {
-      const response = await fetch(`https://api.twitch.tv/kraken/clips/followed?limit=${count}&trending=${trending}&cursor=${cursor}`, { 
-        method: 'GET',
-        headers: {
-          "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
-          "authorization": this.access_token,
-          "accept": "application/vnd.twitchtv.v5+json"
-        }
-      }); 
-  
-      let result = await response.json();
-      console.log("Top clips were loaded:", result.clips.length);
+      let result = {};
+      try {
+        const token = await AsyncStorage.getItem('ACCESS_TOKEN:key');
+        const response = await fetch(`https://api.twitch.tv/kraken/clips/followed?limit=${count}&trending=${trending}&cursor=${cursor}`, { 
+          method: 'GET',
+          headers: {
+            "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+            "authorization": token,
+            "accept": "application/vnd.twitchtv.v5+json"
+          }
+        }); 
+    
+        let result = await response.json();
+        console.log("Top clips were loaded:", result.clips.length);
+      } catch (error) {
+        console.log('Request Error: access_token', this.access_token, error)
+      }
       return result; 
     }
 

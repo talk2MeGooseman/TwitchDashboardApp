@@ -6,7 +6,7 @@ import {
     View,
     WebView,
     Dimensions,
-    Text
+    Text,
 } from 'react-native';
 import {Button} from 'native-base';
 
