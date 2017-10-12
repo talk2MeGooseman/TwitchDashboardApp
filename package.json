@@ -5,12 +5,14 @@
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "jest",
-    "react-devtool": "react-devtools"
+    "react-devtool": "react-devtools",
+    "upgrade": "react-native-git-upgrade"
   },
   "dependencies": {
     "native-base": "^2.3.2",
     "react": "16.0.0-alpha.12",
     "react-native": "0.48.3",
+    "react-native-git-upgrade": "^0.2.7",
     "react-native-video": "^2.0.0",
     "react-navigation": "^1.0.0-beta.13",
     "react-redux": "^5.0.6",
