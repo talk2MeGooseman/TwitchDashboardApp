@@ -12,6 +12,12 @@ import {
 } from 'react-native';
 import { Root } from "native-base";
 import TrendingClipsView from './views/TrendingClipsView';
+import ReduxNavigation from './views/ReduxNavigation';
+import AppReducer from './redux/CombineReducers';
+import { createStore } from 'redux';
+import { Provider } from 'react-redux'
+
+const store = createStore(AppReducer);
 
 export default class TwitchDashboardApp extends Component {
   constructor() {
@@ -24,9 +30,9 @@ export default class TwitchDashboardApp extends Component {
 
   render() {
     return (
-      <Root>
-        <TrendingClipsView />
-      </Root>
+      <Provider store={store}>
+        <ReduxNavigation />
+      </Provider>
     );
   }
 };

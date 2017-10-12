@@ -1,7 +1,11 @@
 import React from "react";
 import { BackHandler } from "react-native";
+import { Root } from 'native-base';
+import { connect } from 'react-redux'
 import { addNavigationHelpers, NavigationActions } from "react-navigation";
 import AppNavigation from '../navigation/AppNavigation';
+
+const mapStateToProps = state => ({ nav: state.nav });
 
 class ReduxNavigation extends React.Component {
   componentDidMount() {
@@ -12,7 +16,7 @@ class ReduxNavigation extends React.Component {
   }
   onBackPress = () => {
     const { dispatch, nav } = this.props;
-    if (nav.index === 0) {
+    if (nav.index === 0 || nav.index === 1) {
       return false;
     }
     dispatch(NavigationActions.back());
@@ -26,6 +30,12 @@ class ReduxNavigation extends React.Component {
       state: nav
     });
 
-    return <Root><AppNavigation navigation={navigation} /></Root>;
+    return(
+      <Root>
+        <AppNavigation navigation={navigation} />
+      </Root>
+    );
   }
-}
+};
+
+export default connect(mapStateToProps)(ReduxNavigation);

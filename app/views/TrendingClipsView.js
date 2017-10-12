@@ -56,22 +56,11 @@ export default class TrendingClipsView extends Component {
       super();
       this.state = {
         loading: true,
-        authed: false,
         showVideoOverlay: false,
         overlayUrl: 'https://clips.twitch.tv/embed?clip=AmazonianEncouragingLyrebirdAllenHuhu&tt_medium=clips_api&tt_content=embed'
       };
   
       this.twitchAPI = new TwitchAPI();
-    }
-  
-    componentDidMount() {
-      this.twitchAPI.getUserAccessToken(this.userDidAuthenticate.bind(this));
-    }
-    
-    userDidAuthenticate() {
-      this.setState({
-        authed: true
-      });
     }
 
     toggleVideoOverlay(url) {
@@ -83,11 +72,7 @@ export default class TrendingClipsView extends Component {
 
     // TODO: WTF IS THIS OK TO DO?
     displayClips(trending) {
-      if(this.state.authed){
-        return(<TrendingClipsList twitchAPI={this.twitchAPI} toggleOverlay={ this.toggleVideoOverlay.bind(this) } trending={trending} count={this.state.count} />);
-      } else {
-        return;
-      }
+      return(<TrendingClipsList twitchAPI={this.twitchAPI} toggleOverlay={ this.toggleVideoOverlay.bind(this) } trending={trending} count={this.state.count} />);
     }
 
     displayFilterOption(){
@@ -136,6 +121,11 @@ export default class TrendingClipsView extends Component {
       return (
         <Container>
           <Header hasTabs>
+            <Left>
+              <Button onPress={() => {this.props.navigation.navigate('DrawerOpen');} }>
+                <Icon name="menu" />
+              </Button>
+            </Left>
             <Right>
               <Button onPress={() => this.displayFilterOption() }>
                 <Icon name="ios-funnel" />

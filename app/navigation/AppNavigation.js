@@ -1,9 +1,12 @@
-import { StackNavigator } from 'react-navigation'
-import TrendingClipsView from '../views/TrendingClipsView'
+import { StackNavigator, DrawerNavigator } from 'react-navigation';
+import TrendingClipsView from '../views/TrendingClipsView';
+import SplashScreen from '../views/SplashScreenView';
+import FollowingView from '../views/FollowingView';
 
 // drawer stack
 const DrawerStack = DrawerNavigator({
-  TrendingClipsView: { screen: TrendingClipsView }
+  TrendingClipsView: { screen: TrendingClipsView },
+  FollowingView: { screen: FollowingView }
 });
 
 const DrawerNavigation = StackNavigator({
@@ -14,12 +17,12 @@ const DrawerNavigation = StackNavigator({
 
 // Manifest of possible screens
 const PrimaryNav = StackNavigator({
-  SplashScreen: { screen: TrendingClipsView},
-  drawerStack: { screen: DrawerNavigation }
+  SplashScreen: { screen: SplashScreen},
+  DrawerStack: { screen: DrawerNavigation }
 }, {
   // Default config for all screens
   headerMode: 'none',
   initialRouteName: 'SplashScreen'
 });
 
-export default PrimaryNav
+export default PrimaryNav;

@@ -17,13 +17,17 @@ export default class TwitchAPI {
 
       function handleAccessTokenResponse(event){
         const access_token = event.url.toString().match( /access_token=([^&]+)/ );
+        // Check for issue with Kindle Fire Tablet
         if (Array.isArray(access_token) && access_token.length === 2) {
           this.access_token = access_token[1];
           AsyncStorage.setItem('ACCESS_TOKEN:key',  this.access_token);
           callback(access_token[1]);
         } else if(access_token) {
           this.access_token = access_token;
+          AsyncStorage.setItem('ACCESS_TOKEN:key',  this.access_token);          
           callback(access_token);
+        } else {
+          callback(null);
         }
       }
     }
@@ -41,7 +45,7 @@ export default class TwitchAPI {
           }
         }); 
     
-        let result = await response.json();
+        result = await response.json();
         console.log("Top clips were loaded:", result.clips.length);
       } catch (error) {
         console.log('Request Error: access_token', this.access_token, error)
