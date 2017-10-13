@@ -7,8 +7,17 @@ import TwitchAPI from '../lib/TwitchAPI';
 export default class SplashScreen extends PureComponent {
     
     componentDidMount(){
+        this.getToken();
+    }
+
+    async getToken() {
         const twitchAPI = new TwitchAPI();
-        twitchAPI.getUserAccessToken(this.startApp.bind(this));
+        let valid = await twitchAPI.tokenValid();
+        if (valid) { 
+            this.startApp();
+        } else {
+            twitchAPI.getUserAccessToken(this.startApp.bind(this));
+        }
     }
 
     startApp() {

@@ -2,7 +2,7 @@ import { Linking, AsyncStorage } from 'react-native';
 
 const CLIENT_ID = 'imgxjm3xjyq0kupk8ln0s11b3bpu1x';
 const REDIRECT_URI = 'app://localhost/twitchdashboardapp';
-const SCOPES = 'collections_edit user_follows_edit user_subscriptions user_read';
+const SCOPES = 'collections_edit user_follows_edit user_subscriptions user_read user_subscriptions';
 
 export default class TwitchAPI {
     constructor(){
@@ -10,7 +10,7 @@ export default class TwitchAPI {
     }
 
     getUserAccessToken(callback) {
-      const url = `https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES}`;
+      const url = `https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES}&force_verify=true`;
       Linking.openURL(url).catch(err => alert('An error occurred', err));;
       
       Linking.addEventListener('url', handleAccessTokenResponse );
@@ -32,10 +32,33 @@ export default class TwitchAPI {
       }
     }
 
+    async tokenValid(token) {
+      try {
+        if (!token) {
+          token = await AsyncStorage.getItem('ACCESS_TOKEN:key');
+        }
+        const response = await fetch(`https://api.twitch.tv/kraken?oauth_token=${token}`, { 
+          method: 'GET',
+          headers: {
+            "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+            "accept": "application/vnd.twitchtv.v5+json"
+          }
+        }); 
+    
+        result = await response.json();
+        console.log("Response", result);
+      } catch (error) {
+        console.log('Request Error: access_token', token, error)
+        result = false;
+      }
+      return result.token.valid; 
+    }
+
     async getTopClipsForUser({trending, cursor="", count=25}) {
       let result = {};
+      let token = null;
       try {
-        const token = await AsyncStorage.getItem('ACCESS_TOKEN:key');
+        token = await AsyncStorage.getItem('ACCESS_TOKEN:key');
         const response = await fetch(`https://api.twitch.tv/kraken/clips/followed?limit=${count}&trending=${trending}&cursor=${cursor}`, { 
           method: 'GET',
           headers: {
@@ -46,9 +69,12 @@ export default class TwitchAPI {
         }); 
     
         result = await response.json();
-        console.log("Top clips were loaded:", result.clips.length);
+        debugger;
+        if(result.status === 401) throw result.message;
+        console.log("Top clips", result);
       } catch (error) {
-        console.log('Request Error: access_token', this.access_token, error)
+        console.log('Request Error: access_token', token, error)
+        result = false;
       }
       return result; 
     }

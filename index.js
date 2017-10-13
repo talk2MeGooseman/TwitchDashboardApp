@@ -10,10 +10,8 @@ import {
   UIManager,
   Platform,
 } from 'react-native';
-import { Root } from "native-base";
-import TrendingClipsView from './views/TrendingClipsView';
-import ReduxNavigation from './views/ReduxNavigation';
-import AppReducer from './redux/CombineReducers';
+import ReduxNavigation from './app/views/ReduxNavigation';
+import AppReducer from './app/redux/CombineReducers';
 import { createStore } from 'redux';
 import { Provider } from 'react-redux'
 

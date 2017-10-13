@@ -7,39 +7,21 @@
 import React, { Component } from 'react';
 import {
   StyleSheet,
-  LayoutAnimation,
-  ActivityIndicator,
-  Platform,
-  WebView,
-  View,
-  Dimensions,
 } from 'react-native';
 import { 
   Container,
   Header,
-  Content,
-  Thumbnail,
-  Text,
   Button,
   Icon,
   Left,
-  Body,
   Right,
-  Title,
-  Spinner,
-  Footer,
-  FooterTab,
   Tab,
   Tabs,
   ActionSheet
 } from 'native-base';
-import ClipCard from '../components/ClipCard';
 import TwitchAPI from '../lib/TwitchAPI';
 import TrendingClipsList from '../components/TrendingClipsList';
 import WebViewOverlay from '../components/WebViewOverlay';
-
-const MOST_VIEWED = 0;
-const TRENDING = 1;
 
 const TAB1_NAME = "Most Viewed";
 const TAB2_NAME = "Trending";

@@ -68,7 +68,9 @@ export default class TrendingClipsView extends Component {
         const trendingSelection = this.state.trendingView === TRENDING;
   
         let results = await twitchAPI.getTopClipsForUser({trending, count});
-        for(let clip of results['clips'])  {
+        if (!results) return;
+
+        for(let clip of results['cips'])  {
           const passProps = {
             username: clip.broadcaster.display_name,
             key: clip.tracking_id,
