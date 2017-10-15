@@ -15,16 +15,20 @@ export default class TwitchAPI {
       
       Linking.addEventListener('url', handleAccessTokenResponse );
 
-      function handleAccessTokenResponse(event){
+      async function handleAccessTokenResponse(event){
         const access_token = event.url.toString().match( /access_token=([^&]+)/ );
         // Check for issue with Kindle Fire Tablet
         if (Array.isArray(access_token) && access_token.length === 2) {
           this.access_token = access_token[1];
-          AsyncStorage.setItem('ACCESS_TOKEN:key',  this.access_token);
+          AsyncStorage.setItem('TWITCH:ACCESS_TOKEN:key',  this.access_token);
+          await this.tokenValid();
+
           callback(access_token[1]);
         } else if(access_token) {
           this.access_token = access_token;
-          AsyncStorage.setItem('ACCESS_TOKEN:key',  this.access_token);          
+          AsyncStorage.setItem('TWITCH:ACCESS_TOKEN:key',  this.access_token);
+          await this.tokenValid();
+
           callback(access_token);
         } else {
           callback(null);
@@ -35,7 +39,7 @@ export default class TwitchAPI {
     async tokenValid(token) {
       try {
         if (!token) {
-          token = await AsyncStorage.getItem('ACCESS_TOKEN:key');
+          token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
         }
         const response = await fetch(`https://api.twitch.tv/kraken?oauth_token=${token}`, { 
           method: 'GET',
@@ -46,6 +50,11 @@ export default class TwitchAPI {
         }); 
     
         result = await response.json();
+
+        if (result.token.user_id) {
+          AsyncStorage.setItem('TWITCH:USER_ID:key', result.token.user_id);
+        }
+
         console.log("Response", result);
       } catch (error) {
         console.log('Request Error: access_token', token, error)
@@ -58,20 +67,21 @@ export default class TwitchAPI {
       let result = {};
       let token = null;
       try {
-        token = await AsyncStorage.getItem('ACCESS_TOKEN:key');
-        const response = await fetch(`https://api.twitch.tv/kraken/clips/followed?limit=${count}&trending=${trending}&cursor=${cursor}`, { 
+        token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
+        const response = await fetch(`https://api.twitch.tv/kraken/clips/followed?limit=${count}&trending=${trending}`, { 
           method: 'GET',
           headers: {
-            "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
-            "authorization": token,
-            "accept": "application/vnd.twitchtv.v5+json"
+            "Client-ID": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+            "Authorization": `OAuth ${token}`,
+            "Accept": "application/vnd.twitchtv.v5+json",
+            'Content-Type': 'application/json',
           }
         }); 
     
         result = await response.json();
-        debugger;
-        if(result.status === 401) throw result.message;
-        console.log("Top clips", result);
+
+        if(response.status === 401) throw result.message;
+        //console.log("Top clips", result);
       } catch (error) {
         console.log('Request Error: access_token', token, error)
         result = false;
@@ -151,5 +161,20 @@ export default class TwitchAPI {
         });
 
         return(followed); 
+    }
+
+    static async v5getUsersFollow(direction='desc') {
+      let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
+      const response = await fetch(`https://api.twitch.tv/kraken/users/${user_id}/follows/channels?limit=100&direction=${direction}`, { 
+          method: 'GET',
+          headers: {
+            "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+            "accept": " application/vnd.twitchtv.v5+json"
+          }
+      });
+    
+      let result = await response.json();
+
+      return(result); 
     }
 }

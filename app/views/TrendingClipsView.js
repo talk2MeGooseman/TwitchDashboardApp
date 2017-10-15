@@ -34,6 +34,10 @@ const CLIPS_100 = "3";
 const CANCEL_INDEX = 4;
 
 export default class TrendingClipsView extends Component {
+    static navigationOptions = {
+      drawerLabel: 'Top Clips'
+    };
+
     constructor() {
       super();
       this.state = {

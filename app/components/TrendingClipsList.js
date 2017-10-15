@@ -33,7 +33,8 @@ export default class TrendingClipsView extends Component {
     static propTypes = {
         twitchAPI: PropTypes.object,
         trending: PropTypes.bool,
-        count: PropTypes.number
+        count: PropTypes.number,
+        toggleOverlay: PropTypes.func.isRequired
     };
 
     constructor() {
@@ -70,7 +71,7 @@ export default class TrendingClipsView extends Component {
         let results = await twitchAPI.getTopClipsForUser({trending, count});
         if (!results) return;
 
-        for(let clip of results['cips'])  {
+        for(let clip of results['clips'])  {
           const passProps = {
             username: clip.broadcaster.display_name,
             key: clip.tracking_id,

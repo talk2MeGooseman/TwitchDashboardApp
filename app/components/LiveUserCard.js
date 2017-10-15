@@ -17,7 +17,8 @@ export default class LiveUserCard extends Component {
     start_time: PropTypes.string,
     viewers_count: PropTypes.number,
     game_title: PropTypes.string,
-    followers_count: PropTypes.number
+    followers_count: PropTypes.number,
+    live: PropTypes.bool.isRequired
   };
 
   setImageSize(height, width){
@@ -96,12 +97,14 @@ export default class LiveUserCard extends Component {
           </Body>
         </CardItem>
         <CardItem cardBody>
-          <Button transparent onPress={alert}>
-            <Image 
-              source={ {uri: this.setImageSize(300, 533)} }
-              style={{ height: 300, width: null, flex: 1 }}
-            />
-          </Button>
+          <Content>      
+            <Button style={{ height: 300, width: null,}} transparent onPress={alert}>
+              <Image 
+                source={ {uri: this.setImageSize(300, 533)} }
+                style={{ height: 300, width: null, flex: 1 }}
+              />
+            </Button>
+          </Content>
         </CardItem>
         { this.getCardFooter() }
       </Card>
