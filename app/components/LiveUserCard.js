@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import {
-  Image
+  Image,
+  StyleSheet
 } from 'react-native';
 import { Content, Card, CardItem, Thumbnail, Text, Button, Icon, Left, Body, Right } from 'native-base';
 
@@ -22,7 +23,13 @@ export default class LiveUserCard extends Component {
   };
 
   setImageSize(height, width){
-    let url = this.props.image_url.replace('{width}', width);
+    let image_url = "http://via.placeholder.com/300x533?text=8==D";
+    
+    if(this.props.image_url) {
+      image_url = this.props.image_url;
+    }
+
+    let url = image_url.replace('{width}', width);
     url = url.replace('{height}', height);
 
     return url;
@@ -86,13 +93,17 @@ export default class LiveUserCard extends Component {
     return jsxElements;
   }
 
+  renderLiveMarker() {
+    return this.props.live ? <Text><Icon name="ios-radio-button-on" style={styles.liveIcon} />{" "}</Text> : '';
+  }
+
   render() {
     const { image_url, user_id, username, title, start_time, viewers_count, game_title } = this.props;
     return (
       <Card>
         <CardItem>
           <Body>
-            <Text>{username}</Text>
+            <Text>{this.renderLiveMarker()}{username}</Text>
             { this.getCardLiveHeaderMetadata() }
           </Body>
         </CardItem>
@@ -111,3 +122,11 @@ export default class LiveUserCard extends Component {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  liveIcon: {
+    color: 'red',
+    marginRight: 100,
+    fontSize: 15,
+  }
+});

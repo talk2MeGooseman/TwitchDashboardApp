@@ -17,6 +17,8 @@ import {
   Right,
   Tab,
   Tabs,
+  Title,
+  Body,
   ActionSheet
 } from 'native-base';
 import TwitchAPI from '../lib/TwitchAPI';
@@ -112,6 +114,9 @@ export default class TrendingClipsView extends Component {
                 <Icon name="menu" />
               </Button>
             </Left>
+            <Body>
+              <Title>Top Clips</Title>
+            </Body>
             <Right>
               <Button onPress={() => this.displayFilterOption() }>
                 <Icon name="ios-funnel" />

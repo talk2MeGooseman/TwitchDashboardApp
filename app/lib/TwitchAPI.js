@@ -1,8 +1,10 @@
 import { Linking, AsyncStorage } from 'react-native';
 
 const CLIENT_ID = 'imgxjm3xjyq0kupk8ln0s11b3bpu1x';
+const TWITCH_ACCEPT = "application/vnd.twitchtv.v5+json";
 const REDIRECT_URI = 'app://localhost/twitchdashboardapp';
 const SCOPES = 'collections_edit user_follows_edit user_subscriptions user_read user_subscriptions';
+const V5_TWITCH_BASE_URL = "https://api.twitch.tv/kraken";
 
 export default class TwitchAPI {
     constructor(){
@@ -10,7 +12,7 @@ export default class TwitchAPI {
     }
 
     getUserAccessToken(callback) {
-      const url = `https://api.twitch.tv/kraken/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES}&force_verify=true`;
+      const url = `${V5_TWITCH_BASE_URL}/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES}&force_verify=true`;
       Linking.openURL(url).catch(err => alert('An error occurred', err));;
       
       Linking.addEventListener('url', handleAccessTokenResponse );
@@ -41,11 +43,11 @@ export default class TwitchAPI {
         if (!token) {
           token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
         }
-        const response = await fetch(`https://api.twitch.tv/kraken?oauth_token=${token}`, { 
+        const response = await fetch(`${V5_TWITCH_BASE_URL}?oauth_token=${token}`, { 
           method: 'GET',
           headers: {
-            "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
-            "accept": "application/vnd.twitchtv.v5+json"
+            "client-id": CLIENT_ID,
+            "accept": TWITCH_ACCEPT
           }
         }); 
     
@@ -68,12 +70,12 @@ export default class TwitchAPI {
       let token = null;
       try {
         token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
-        const response = await fetch(`https://api.twitch.tv/kraken/clips/followed?limit=${count}&trending=${trending}`, { 
+        const response = await fetch(`${V5_TWITCH_BASE_URL}/clips/followed?limit=${count}&trending=${trending}`, { 
           method: 'GET',
           headers: {
-            "Client-ID": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+            "Client-ID": CLIENT_ID,
             "Authorization": `OAuth ${token}`,
-            "Accept": "application/vnd.twitchtv.v5+json",
+            "Accept": TWITCH_ACCEPT,
             'Content-Type': 'application/json',
           }
         }); 
@@ -81,7 +83,6 @@ export default class TwitchAPI {
         result = await response.json();
 
         if(response.status === 401) throw result.message;
-        //console.log("Top clips", result);
       } catch (error) {
         console.log('Request Error: access_token', token, error)
         result = false;
@@ -90,10 +91,10 @@ export default class TwitchAPI {
     }
 
     static async fetchUsersInfo(user_id) {
-        const response = await fetch(`https://api.twitch.tv/helix/users?id=${user_id}`, { 
+        const response = await fetch(`${V5_TWITCH_BASE_URL}?id=${user_id}`, { 
           method: 'GET',
           headers: {
-            "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+            "client-id":CLIENT_ID,
           }
         }); 
     
@@ -103,17 +104,49 @@ export default class TwitchAPI {
     }
 
     static async v5fetchUsersInfo(user_id) {
-        const response = await fetch(`https://api.twitch.tv/kraken/channels/${user_id}`, { 
+        const response = await fetch(`${V5_TWITCH_BASE_URL}/channels/${user_id}`, { 
           method: 'GET',
           headers: {
-            "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
-            "accept": "application/vnd.twitchtv.v5+json"
+            "client-id": CLIENT_ID,
+            "accept": TWITCH_ACCEPT
           }
         }); 
     
         let result = await response.json();
     
         return result; 
+    }
+    
+    static async v5getUsersFollow(direction='desc') {
+      let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
+      const response = await fetch(`${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels?limit=100&direction=${direction}`, { 
+          method: 'GET',
+          headers: {
+            "client-id": CLIENT_ID,
+            "accept": TWITCH_ACCEPT
+          }
+      });
+    
+      let result = await response.json();
+
+      return(result); 
+    }
+
+    static async v5getFollowedSteams() {
+      let token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
+      
+      const response = await fetch(`${V5_TWITCH_BASE_URL}/streams/followed?limit=100`, { 
+          method: 'GET',
+          headers: {
+            "client-id": CLIENT_ID,
+            "accept": TWITCH_ACCEPT,
+            "Authorization": `OAuth ${token}`,            
+          }
+      });
+    
+      let result = await response.json();
+
+      return(result); 
     }
 
     static async fetchLiveUsers(user_ids) {
@@ -122,7 +155,7 @@ export default class TwitchAPI {
       const response = await fetch(`https://api.twitch.tv/helix/streams?${params.join('&')}&type%20=live&first=100`, { 
         method: 'GET',
         headers: {
-          "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+          "client-id": CLIENT_ID,
         }
       }); 
   
@@ -137,7 +170,7 @@ export default class TwitchAPI {
       const response = await fetch(`https://api.twitch.tv/helix/streams?${params.join('&')}&type=vodcast&first=100`, { 
         method: 'GET',
         headers: {
-          "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+          "client-id": CLIENT_ID,
         }
       }); 
   
@@ -150,7 +183,7 @@ export default class TwitchAPI {
         const response = await fetch(`https://api.twitch.tv/helix/users/follows?from_id=${user_id}&first=100`, { 
             method: 'GET',
             headers: {
-              "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
+              "client-id": CLIENT_ID,
             }
         });
       
@@ -161,20 +194,5 @@ export default class TwitchAPI {
         });
 
         return(followed); 
-    }
-
-    static async v5getUsersFollow(direction='desc') {
-      let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
-      const response = await fetch(`https://api.twitch.tv/kraken/users/${user_id}/follows/channels?limit=100&direction=${direction}`, { 
-          method: 'GET',
-          headers: {
-            "client-id": "imgxjm3xjyq0kupk8ln0s11b3bpu1x",
-            "accept": " application/vnd.twitchtv.v5+json"
-          }
-      });
-    
-      let result = await response.json();
-
-      return(result); 
     }
 }
