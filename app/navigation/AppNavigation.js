@@ -2,6 +2,7 @@ import { StackNavigator, DrawerNavigator } from 'react-navigation';
 import TrendingClipsView from '../views/TrendingClipsView';
 import SplashScreen from '../views/SplashScreenView';
 import FollowingView from '../views/FollowingView';
+import UserView from '../views/UserView'
 
 // drawer stack
 const DrawerStack = DrawerNavigator({
@@ -10,9 +11,11 @@ const DrawerStack = DrawerNavigator({
 });
 
 const DrawerNavigation = StackNavigator({
-  DrawerStack: { screen: DrawerStack }
+  DrawerStack: { screen: DrawerStack },
+  UserView: { screen: UserView }
 }, {
   headerMode: 'none',
+  initialRouteName: 'DrawerStack'
 });
 
 // Manifest of possible screens

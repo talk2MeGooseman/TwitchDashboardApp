@@ -1,4 +1,5 @@
 import { Linking, AsyncStorage } from 'react-native';
+import CONSTANTS from './Constants';
 
 const CLIENT_ID = 'imgxjm3xjyq0kupk8ln0s11b3bpu1x';
 const TWITCH_ACCEPT = "application/vnd.twitchtv.v5+json";
@@ -117,9 +118,9 @@ export default class TwitchAPI {
         return result; 
     }
     
-    static async v5getUsersFollow(direction='desc') {
+    static async v5getUsersFollow() {
       let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
-      const response = await fetch(`${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels?limit=100&direction=${direction}`, { 
+      const response = await fetch(`${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels?limit=100&`, { 
           method: 'GET',
           headers: {
             "client-id": CLIENT_ID,
@@ -132,10 +133,23 @@ export default class TwitchAPI {
       return(result); 
     }
 
-    static async v5getFollowedSteams() {
+    static async v5getFollowedStreams(filterBy) {
       let token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
+      let type;
       
-      const response = await fetch(`${V5_TWITCH_BASE_URL}/streams/followed?limit=100`, { 
+      switch (filterBy) {
+        case CONSTANTS.LIVE_INDEX:
+          type = 'live';
+          break;
+        case CONSTANTS.VOD_INDEX:
+          type = 'playlist';
+          break;
+        default:
+          type = 'all';
+          break;
+      }
+
+      const response = await fetch(`${V5_TWITCH_BASE_URL}/streams/followed?limit=100&stream_type=${type}`, { 
           method: 'GET',
           headers: {
             "client-id": CLIENT_ID,

@@ -86,8 +86,8 @@ export default class LiveUserCard extends Component {
   getCardLiveHeaderMetadata() {
     let jsxElements = [];
     if(this.props.live) {
-      jsxElements.push(<Text note>{this.props.game_title}</Text>);
-      jsxElements.push(<Text note>{this.props.title}</Text>);
+      jsxElements.push(<Text note key={1}>{this.props.game_title}</Text>);
+      jsxElements.push(<Text note key={2}>{this.props.title}</Text>);
     }
 
     return jsxElements;

@@ -1,23 +1,23 @@
 import React, { Component } from 'react';
 import {AsyncStorage} from 'react-native';
-import { Container, Content, Text, Header, Left, Button, Icon, Right, ActionSheet } from 'native-base';
+import { Title, Body, Spinner, Container, Content, Text, Header, Left, Button, Icon, Right, ActionSheet } from 'native-base';
 import LiveUserCard from '../components/LiveUserCard'
 import TwitchAPI from '../lib/TwitchAPI';
-
-const BUTTONS = ["All", "Live", "Vodcast", "Cancel"];
-const CANCEL_INDEX = 3;
+import CONSTANTS from '../lib/Constants';
 
 export default class FollowingView extends Component {
     static navigationOptions = {
-        drawerLabel: 'Following'
+        drawerLabel: 'Following',
     };
 
     constructor(props){
         super(props);
 
         this.state = {
+            loading: true,
             users: [],
-            liveUsers: []
+            liveUsers: [],
+            filter: CONSTANTS.ALL_INDEX
         };
     }
 
@@ -25,21 +25,47 @@ export default class FollowingView extends Component {
         this.getFollowers();
     }
 
+    componentDidUpdate(prevProps, prevState){
+        if(prevState.filter != this.state.filter) this.getFollowers();
+    } 
+
     async getFollowers() {
-        const results = await TwitchAPI.v5getUsersFollow();
-        const liveUsers = await TwitchAPI.v5getFollowedSteams();
+        let users = this.state.users;
+        if(this.state.filter === CONSTANTS.ALL_INDEX) {
+            let response = await TwitchAPI.v5getUsersFollow();
+            users = response.follows;
+        }
+        const liveUsers = await TwitchAPI.v5getFollowedStreams(this.state.filter);
         this.setState({
-            users: results.follows,
-            liveUsers: liveUsers
+            users: users,
+            liveUsers: liveUsers.streams,
+            loading: false
         });
     }
 
-    renderUsers() {
-        let elements = [];
-        if(this.state.users.length === 0) return;
+    renderLiveUserCards() {
+        let elements = this.state.liveUsers.map(function(user) {
+            let props = {
+                user_id: `${user.channel._id}`,
+                key: user.channel._id, 
+                username: user.channel.display_name,
+                live: true,
+                start_time: user.created_at,
+                viewers_count: user.viewers,
+                game_title: user.game,
+                title: user.channel.status,
+                image_url: user.preview.large,
+            };
+
+            return(<LiveUserCard {...props} />);
+        }.bind(this));
         
-        this.state.users.map(function(user) {
-            let userLive = this.state.liveUsers.streams.find((live) => {
+        return elements;
+    }
+
+    renderAllUserCard(){
+        let elements = this.state.users.map(function(user) {
+            let userLive = this.state.liveUsers.find((live) => {
                 return user.channel._id === `${live.channel._id}`;
             });
 
@@ -50,7 +76,7 @@ export default class FollowingView extends Component {
                 username: user.channel.display_name,
                 followers_count: user.channel.followers,
                 live: userLive !== undefined
-            }
+            };
 
             if (userLive) {
                 props.start_time = userLive.created_at;
@@ -60,21 +86,66 @@ export default class FollowingView extends Component {
                 props.image_url = userLive.preview.large;
             }
 
-            elements.push(<LiveUserCard {...props} />);
+            return(<LiveUserCard {...props} />);
         }.bind(this));
+
+        return elements;
+    }
+
+    renderUsers() {
+        let elements = [];
+        
+        if(this.state.filter === CONSTANTS.LIVE_INDEX || this.state.filter === CONSTANTS.VOD_INDEX){
+            elements = this.renderLiveUserCards();
+        } else {
+            elements = this.renderAllUserCard();
+        }
+
+        if(elements.length === 0 && !this.state.loading) {
+            elements.push(<Text>No Results</Text>);
+        }
         return(elements)
+    }
+
+    filterSelected(index) {
+        let filterBy;
+        switch (index) {
+            case CONSTANTS.ALL_INDEX:
+                filterBy = CONSTANTS.ALL_INDEX;
+                break;
+            case CONSTANTS.LIVE_INDEX:
+                filterBy = CONSTANTS.LIVE_INDEX;
+                break;
+            case CONSTANTS.VOD_INDEX:
+                filterBy = CONSTANTS.VOD_INDEX;
+                break;
+            default:
+                filterBy = CONSTANTS.ALL_INDEX;
+                break;
+        }
+
+        this.setState({
+            loading: true,
+            filter: filterBy,
+            users: [],
+            liveUsers: []
+        });
     }
 
     displayFilterOption(){
         ActionSheet.show(
           {
-            options: BUTTONS,
-            cancelButtonIndex: CANCEL_INDEX,
+            options: CONSTANTS.FOLLOWING_FILTERS,
+            cancelButtonIndex: CONSTANTS.CANCEL_INDEX,
             title: "Filter By"
           },
-          alert
+          this.filterSelected.bind(this)
         )
-      }
+    }
+
+    renderSpinner() {
+        if(this.state.loading) return(<Spinner color='black'/>);   
+    }
 
     render() {
         return(
@@ -85,6 +156,7 @@ export default class FollowingView extends Component {
                             <Icon name="menu" />
                         </Button>
                     </Left>
+                    <Body><Title>Following</Title></Body>
                     <Right>
                         <Button onPress={() => this.displayFilterOption() }>
                             <Icon name="ios-funnel" />
@@ -93,6 +165,7 @@ export default class FollowingView extends Component {
                 </Header>
                 <Content>
                     { this.renderUsers() }
+                    { this.renderSpinner() }
                 </Content>
             </Container>
         );
