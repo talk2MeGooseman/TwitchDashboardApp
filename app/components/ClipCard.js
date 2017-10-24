@@ -20,7 +20,7 @@ export default class ClipCard extends PureComponent {
     created_at: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired,
     embed_url: PropTypes.string.isRequired,
-    toggleOverlay: PropTypes.func.isRequired
+    onImagePress: PropTypes.func.isRequired
   };
 
   createFooter() {
@@ -61,7 +61,7 @@ export default class ClipCard extends PureComponent {
         </CardItem>
         <CardItem cardBody>
           <Content>
-            <Button style={{ height: 272, width: null,}} transparent onPress={ () => this.props.toggleOverlay(this.props.embed_url) }>
+            <Button style={{ height: 272, width: null,}} transparent onPress={ () => this.props.onImagePress(this.props.embed_url) }>
               <Image source={ {uri: image_url} } style={{ height: 272, width: null, flex: 1 }} />
             </Button>
           </Content>

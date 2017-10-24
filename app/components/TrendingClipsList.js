@@ -84,7 +84,7 @@ export default class TrendingClipsView extends Component {
             url: clip.url,
             embed_url: clip.embed_url,
             title: clip.title,
-            toggleOverlay: this.props.toggleOverlay
+            onImagePress: this.props.toggleOverlay
           };
     
           jsxElements.push(<ClipCard { ...passProps } />);

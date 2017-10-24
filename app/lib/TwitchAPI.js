@@ -1,7 +1,8 @@
 import { Linking, AsyncStorage } from 'react-native';
 import CONSTANTS from './Constants';
+import SECRETS from './secrets';
 
-const CLIENT_ID = 'imgxjm3xjyq0kupk8ln0s11b3bpu1x';
+const CLIENT_ID = SECRETS.CLIENT_ID;
 const TWITCH_ACCEPT = "application/vnd.twitchtv.v5+json";
 const REDIRECT_URI = 'app://localhost/twitchdashboardapp';
 const SCOPES = 'collections_edit user_follows_edit user_subscriptions user_read user_subscriptions';
@@ -58,7 +59,6 @@ export default class TwitchAPI {
           AsyncStorage.setItem('TWITCH:USER_ID:key', result.token.user_id);
         }
 
-        console.log("Response", result);
       } catch (error) {
         console.log('Request Error: access_token', token, error)
         result = false;
@@ -121,6 +121,21 @@ export default class TwitchAPI {
     static async v5getUsersFollow() {
       let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
       const response = await fetch(`${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels?limit=100&`, { 
+          method: 'GET',
+          headers: {
+            "client-id": CLIENT_ID,
+            "accept": TWITCH_ACCEPT
+          }
+      });
+    
+      let result = await response.json();
+
+      return(result); 
+    }
+
+    static async v5getTopClips(channel_name) {
+      let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
+      const response = await fetch(`${V5_TWITCH_BASE_URL}/clips/top?channel=${channel_name}&limit=100&`, { 
           method: 'GET',
           headers: {
             "client-id": CLIENT_ID,

@@ -11,7 +11,7 @@ const MILISECONDS_IN_MINUTE = 60000;
 export default class LiveUserCard extends Component {
 
   static propTypes = {
-    image_url: PropTypes.string.isRequired,
+    image_url: PropTypes.string,
     user_id: PropTypes.string.isRequired,
     username: PropTypes.string.isRequired,
     title: PropTypes.string,
@@ -19,11 +19,12 @@ export default class LiveUserCard extends Component {
     viewers_count: PropTypes.number,
     game_title: PropTypes.string,
     followers_count: PropTypes.number,
-    live: PropTypes.bool.isRequired
+    live: PropTypes.bool.isRequired,
+    onUserPress: PropTypes.func,
   };
 
   setImageSize(height, width){
-    let image_url = "http://via.placeholder.com/300x533?text=8==D";
+    let image_url = "http://via.placeholder.com/300x533?text=No%20Profile%20Image";
     
     if(this.props.image_url) {
       image_url = this.props.image_url;
@@ -97,6 +98,15 @@ export default class LiveUserCard extends Component {
     return this.props.live ? <Text><Icon name="ios-radio-button-on" style={styles.liveIcon} />{" "}</Text> : '';
   }
 
+  onPress() {
+    if (this.props.onUserPress) {
+      this.props.onUserPress({
+        user_id: this.props.user_id,
+        username: this.props.username
+      });
+    }
+  }
+
   render() {
     const { image_url, user_id, username, title, start_time, viewers_count, game_title } = this.props;
     return (
@@ -109,7 +119,7 @@ export default class LiveUserCard extends Component {
         </CardItem>
         <CardItem cardBody>
           <Content>      
-            <Button style={{ height: 300, width: null,}} transparent onPress={alert}>
+            <Button style={{ height: 300, width: null,}} transparent onPress={ this.onPress.bind(this) }>
               <Image 
                 source={ {uri: this.setImageSize(300, 533)} }
                 style={{ height: 300, width: null, flex: 1 }}

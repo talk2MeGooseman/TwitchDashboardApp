@@ -4,25 +4,27 @@ import SplashScreen from '../views/SplashScreenView';
 import FollowingView from '../views/FollowingView';
 import UserView from '../views/UserView'
 
-// drawer stack
-const DrawerStack = DrawerNavigator({
-  TrendingClipsView: { screen: TrendingClipsView },
-  FollowingView: { screen: FollowingView }
-});
-
-const DrawerNavigation = StackNavigator({
-  DrawerStack: { screen: DrawerStack },
-  UserView: { screen: UserView }
+// Following Stack
+const FollowingStack = StackNavigator({
+  FollowingView: { screen: FollowingView },
+  UserView: { screen: UserView },
 }, {
   headerMode: 'none',
-  initialRouteName: 'DrawerStack'
+  initialRouteName: 'FollowingView',
+  mode: 'card'
 });
 
-// Manifest of possible screens
+// Drawer stack
+const DrawerStack = DrawerNavigator({
+  TrendingClipsView: { screen: TrendingClipsView },
+  FollowingStack: { screen: FollowingStack }
+});
+
+// Root Stack
 const PrimaryNav = StackNavigator({
-  SplashScreen: { screen: SplashScreen},
-  DrawerStack: { screen: DrawerNavigation }
-}, {
+    SplashScreen: { screen: SplashScreen},
+    DrawerStack: { screen: DrawerStack }
+  }, {
   // Default config for all screens
   headerMode: 'none',
   initialRouteName: 'SplashScreen'

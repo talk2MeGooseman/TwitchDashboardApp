@@ -55,12 +55,17 @@ export default class FollowingView extends Component {
                 game_title: user.game,
                 title: user.channel.status,
                 image_url: user.preview.large,
+                onUserPress: this.navigateUserView.bind(this)
             };
 
             return(<LiveUserCard {...props} />);
         }.bind(this));
         
         return elements;
+    }
+
+    navigateUserView(data) {
+        this.props.navigation.navigate('UserView', data);
     }
 
     renderAllUserCard(){
@@ -75,7 +80,8 @@ export default class FollowingView extends Component {
                 key: user.channel._id, 
                 username: user.channel.display_name,
                 followers_count: user.channel.followers,
-                live: userLive !== undefined
+                live: userLive !== undefined,
+                onUserPress: this.navigateUserView.bind(this)
             };
 
             if (userLive) {
@@ -108,28 +114,29 @@ export default class FollowingView extends Component {
     }
 
     filterSelected(index) {
-        let filterBy;
+        let selectedFilter = this.state.filter;
         switch (index) {
             case CONSTANTS.ALL_INDEX:
-                filterBy = CONSTANTS.ALL_INDEX;
+                selectedFilter = CONSTANTS.ALL_INDEX;
                 break;
             case CONSTANTS.LIVE_INDEX:
-                filterBy = CONSTANTS.LIVE_INDEX;
+                selectedFilter = CONSTANTS.LIVE_INDEX;
                 break;
             case CONSTANTS.VOD_INDEX:
-                filterBy = CONSTANTS.VOD_INDEX;
+                selectedFilter = CONSTANTS.VOD_INDEX;
                 break;
             default:
-                filterBy = CONSTANTS.ALL_INDEX;
                 break;
         }
 
-        this.setState({
-            loading: true,
-            filter: filterBy,
-            users: [],
-            liveUsers: []
-        });
+        if (this.state.filter !== selectedFilter) {
+            this.setState({
+                loading: true,
+                filter: selectedFilter,
+                users: [],
+                liveUsers: []
+            });
+        }
     }
 
     displayFilterOption(){
