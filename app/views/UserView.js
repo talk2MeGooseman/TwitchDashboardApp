@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import {View} from 'react-native';
 import ClipCard from '../components/ClipCard';
-import WebViewOverlay from '../components/WebViewOverlay'
+import WebViewOverlay from '../components/WebViewOverlay';
+import ClipsList from '../components/ClipsList';
 import TwitchAPI from '../lib/TwitchAPI';
 import {
     Text,
@@ -24,22 +25,15 @@ export default class UserView extends Component {
         super(props);
 
         this.state = {
-            clips: [],
             showVideoOverlay: false
         }
-    }
-
-    componentDidMount() {
-        this.getTopClips();
     }
 
     async getTopClips() {
         let username = this.props.navigation.state.params.username;
         let results = await TwitchAPI.v5getTopClips(username);
 
-        this.setState({
-            clips: results.clips
-        });
+       return results;
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -47,28 +41,7 @@ export default class UserView extends Component {
     }
 
     displayClips() {
-        let jsxElements = [];
-
-        for(let clip of this.state.clips) {
-            const passProps = {
-              username: clip.broadcaster.display_name,
-              key: clip.tracking_id,
-              user_id: clip.broadcaster.id,
-              image_url: clip.thumbnails.medium,
-              views: clip.views,
-              duration: clip.duration,
-              game_title: clip.game,
-              created_at: clip.created_at,
-              url: clip.url,
-              embed_url: clip.embed_url,
-              title: clip.title,
-              onImagePress: this.toggleVideoOverlay.bind(this)
-            };
-      
-            jsxElements.push(<ClipCard { ...passProps } />);
-        };
-        
-        return jsxElements;
+        return(<ClipsList getClipsFunc={this.getTopClips.bind(this)} toggleOverlay={ this.toggleVideoOverlay.bind(this) } />);                
     }
 
     displayVideos() {
@@ -102,9 +75,7 @@ export default class UserView extends Component {
                 </Header>
                 <Tabs initialPage={0}>
                     <Tab heading={TAB1_NAME}>
-                        <Content>
-                            {this.displayClips()}
-                        </Content>
+                        {this.displayClips()}
                     </Tab>
                     <Tab heading={TAB2_NAME}>
                         <Content>                    

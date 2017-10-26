@@ -66,7 +66,7 @@ export default class TwitchAPI {
       return result.token.valid; 
     }
 
-    async getTopClipsForUser({trending, cursor="", count=25}) {
+    static async getTopClipsForUser({trending, cursor="", count=25}) {
       let result = {};
       let token = null;
       try {

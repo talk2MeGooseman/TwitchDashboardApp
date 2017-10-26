@@ -22,7 +22,7 @@ import {
   ActionSheet
 } from 'native-base';
 import TwitchAPI from '../lib/TwitchAPI';
-import TrendingClipsList from '../components/TrendingClipsList';
+import ClipsList from '../components/ClipsList';
 import WebViewOverlay from '../components/WebViewOverlay';
 
 const TAB1_NAME = "Most Viewed";
@@ -43,12 +43,9 @@ export default class TrendingClipsView extends Component {
     constructor() {
       super();
       this.state = {
-        loading: true,
         showVideoOverlay: false,
         overlayUrl: 'https://clips.twitch.tv/embed?clip=AmazonianEncouragingLyrebirdAllenHuhu&tt_medium=clips_api&tt_content=embed'
-      };
-  
-      this.twitchAPI = new TwitchAPI();
+      };  
     }
 
     toggleVideoOverlay(url) {
@@ -58,9 +55,22 @@ export default class TrendingClipsView extends Component {
       });
     }
 
-    // TODO: WTF IS THIS OK TO DO?
+    async getMostViewedClips() {
+      let results = await TwitchAPI.getTopClipsForUser({trending: false, count: this.state.count});
+      return results;
+    }
+
+    async getTrendingClips() {
+      let results = await TwitchAPI.getTopClipsForUser({trending: true, count: this.state.count});
+      return results;
+    }
+
     displayClips(trending) {
-      return(<TrendingClipsList twitchAPI={this.twitchAPI} toggleOverlay={ this.toggleVideoOverlay.bind(this) } trending={trending} count={this.state.count} />);
+      if (trending) {
+        return(<ClipsList getClipsFunc={this.getTrendingClips.bind(this)} toggleOverlay={ this.toggleVideoOverlay.bind(this) } />);        
+      } else {
+        return(<ClipsList getClipsFunc={this.getMostViewedClips.bind(this)} toggleOverlay={ this.toggleVideoOverlay.bind(this) } />);
+      }
     }
 
     displayFilterOption(){
@@ -75,7 +85,6 @@ export default class TrendingClipsView extends Component {
     }
     
     userSelectedOption(index) {
-      //this.setState({ clicked: BUTTONS[buttonIndex] });
       let count = this.state.count;
       switch (index) {
         case CLIPS_25:

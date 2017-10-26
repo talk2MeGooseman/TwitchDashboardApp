@@ -29,12 +29,10 @@ import TwitchAPI from '../lib/TwitchAPI';
 const MOST_VIEWED = 0;
 const TRENDING = 1;
 
-export default class TrendingClipsView extends Component {
+export default class ClipsList extends Component {
     static propTypes = {
-        twitchAPI: PropTypes.object,
-        trending: PropTypes.bool,
-        count: PropTypes.number,
-        toggleOverlay: PropTypes.func.isRequired
+        toggleOverlay: PropTypes.func.isRequired,
+        getClipsFunc: PropTypes.func.isRequired,
     };
 
     constructor() {
@@ -45,12 +43,10 @@ export default class TrendingClipsView extends Component {
     }
 
     componentWillReceiveProps(nextProps){
-        if(nextProps.count != this.props.count) {
-            this.setState({
-                clip_cards: [],
-                loading: true
-            });
-        }
+        this.setState({
+            clip_cards: [],
+            loading: true
+        });
     }
 
     componentDidUpdate() {
@@ -64,11 +60,9 @@ export default class TrendingClipsView extends Component {
     }
 
     async loadTopClips() {
-        let {twitchAPI, trending, count} = this.props;
         let jsxElements = [];
-        const trendingSelection = this.state.trendingView === TRENDING;
   
-        let results = await twitchAPI.getTopClipsForUser({trending, count});
+        let results = await this.props.getClipsFunc();
         if (!results) return;
 
         for(let clip of results['clips'])  {
