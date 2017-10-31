@@ -19,7 +19,7 @@ export default class ClipCard extends PureComponent {
     game_title: PropTypes.string.isRequired,
     created_at: PropTypes.string.isRequired,
     url: PropTypes.string.isRequired,
-    embed_url: PropTypes.string.isRequired,
+    embed_url: PropTypes.string,
     onImagePress: PropTypes.func.isRequired
   };
 

@@ -6,8 +6,15 @@ import TwitchAPI from '../lib/TwitchAPI';
 import CONSTANTS from '../lib/Constants';
 
 export default class FollowingView extends Component {
-    static navigationOptions = {
-        drawerLabel: 'Following',
+    static navigationOptions = ({ navigation }) => {
+        const params = navigation.state.params;
+        return {
+            drawerLabel: 'Following',
+            title: 'Following',
+            headerTitle: <Title>Following</Title>,
+            headerLeft: <Button onPress={() => {navigation.navigate('DrawerOpen');} }><Icon name="menu" /></Button>,
+            headerRight: <Button onPress={() => params.displayFilter() }><Icon name="ios-funnel" /></Button>     
+        };
     };
 
     constructor(props){
@@ -22,9 +29,10 @@ export default class FollowingView extends Component {
     }
 
     componentDidMount() {
+        let navigation = this.props.navigation;        
         this.getFollowers();
+        navigation.setParams({ displayFilter: this.displayFilterOption.bind(this) });        
     }
-
     componentDidUpdate(prevProps, prevState){
         if(prevState.filter != this.state.filter) this.getFollowers();
     } 
@@ -147,7 +155,8 @@ export default class FollowingView extends Component {
             title: "Filter By"
           },
           this.filterSelected.bind(this)
-        )
+        );
+        this.props.navigation.setParams({filter: false});
     }
 
     renderSpinner() {
@@ -157,19 +166,6 @@ export default class FollowingView extends Component {
     render() {
         return(
             <Container>
-                <Header>
-                    <Left>
-                        <Button onPress={() => {this.props.navigation.navigate('DrawerOpen');} }>
-                            <Icon name="menu" />
-                        </Button>
-                    </Left>
-                    <Body><Title>Following</Title></Body>
-                    <Right>
-                        <Button onPress={() => this.displayFilterOption() }>
-                            <Icon name="ios-funnel" />
-                        </Button>
-                    </Right>
-                </Header>
                 <Content>
                     { this.renderUsers() }
                     { this.renderSpinner() }

@@ -14,13 +14,19 @@ import {
     Body,
     Title,
     Tab,
-    Tabs
+    Tabs,
+    Button,
+    Icon
 } from 'native-base';
 
-const TAB1_NAME = 'Clips';
-const TAB2_NAME = 'Videos'
+export default class UserClipsView extends Component {
+    static navigationOptions = ({navigation}) => {
+        return({
+            headerTitle: navigation.state.params.username,
+            title: 'Clips'
+        });
+    };
 
-export default class UserView extends Component {
     constructor(props) {
         super(props);
 
@@ -29,9 +35,10 @@ export default class UserView extends Component {
         }
     }
 
-    async getTopClips() {
-        let username = this.props.navigation.state.params.username;
-        let results = await TwitchAPI.v5getTopClips(username);
+    async getTopClips(cursor='') {
+        console.log('Cursor value:', cursor);
+        let channel_name = this.props.navigation.state.params.username;
+        let results = await TwitchAPI.v5getTopClips({channel_name: channel_name, cursor: cursor});
 
        return results;
     }
@@ -41,11 +48,12 @@ export default class UserView extends Component {
     }
 
     displayClips() {
-        return(<ClipsList getClipsFunc={this.getTopClips.bind(this)} toggleOverlay={ this.toggleVideoOverlay.bind(this) } />);                
-    }
-
-    displayVideos() {
-        return;
+        return(
+            <ClipsList 
+                getClipsFunc={this.getTopClips.bind(this)}
+                toggleOverlay={ this.toggleVideoOverlay.bind(this) } 
+                shouldPage={true}
+            />);                
     }
 
     toggleVideoOverlay(url) {
@@ -65,24 +73,7 @@ export default class UserView extends Component {
         let params = this.props.navigation.state.params;
         return(
             <Container>
-                <Header hasTabs>
-                <Left>
-                </Left>
-                <Body>
-                    <Title>{params.username}</Title>
-                </Body>
-                <Right />
-                </Header>
-                <Tabs initialPage={0}>
-                    <Tab heading={TAB1_NAME}>
-                        {this.displayClips()}
-                    </Tab>
-                    <Tab heading={TAB2_NAME}>
-                        <Content>                    
-                            {this.displayVideos()}
-                        </Content>
-                    </Tab>
-                </Tabs>
+                {this.displayClips()}
                 {this.renderVideoOverlay()}
             </Container>    
         );

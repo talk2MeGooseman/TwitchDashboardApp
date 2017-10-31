@@ -5,42 +5,29 @@ import {
   LayoutAnimation,
   ActivityIndicator,
   Platform,
+  FlatList
 } from 'react-native';
 import { 
-  Container,
-  Header,
   Content,
-  Thumbnail,
   Text,
-  Button,
-  Icon,
-  Left,
-  Body,
-  Right,
-  Title,
-  Spinner,
-  Footer,
-  FooterTab,
-  Tab,
-  Tabs
 } from 'native-base';
 import ClipCard from '../components/ClipCard';
 import TwitchAPI from '../lib/TwitchAPI';
-const MOST_VIEWED = 0;
-const TRENDING = 1;
 
 export default class ClipsList extends Component {
     static propTypes = {
         toggleOverlay: PropTypes.func.isRequired,
         getClipsFunc: PropTypes.func.isRequired,
+        shouldPage: PropTypes.bool
     };
 
-    constructor() {
-        super();
-        this.state = {
-          loading: true,
-        };    
-    }
+
+    state = {
+        loading: true,
+        totalHeight: 0,
+        clips: [],
+        cursor: '',
+    };    
 
     componentWillReceiveProps(nextProps){
         this.setState({
@@ -49,24 +36,52 @@ export default class ClipsList extends Component {
         });
     }
 
-    componentDidUpdate() {
-        if(this.state.loading) {
-            this.loadTopClips();
+    componentDidMount() {
+        this.getClips();
+    }
+
+    async getClips() { 
+        let results = await this.props.getClipsFunc();
+        this.setState({
+            clips: results.clips,
+            cursor: results._cursor,
+            loading: false,            
+        });
+    }
+
+    // FIXME: Weird flat list issues
+    async getMoreClips() {
+        if(!this.props.shouldPage || this.state.clips.length === 0) return;
+        
+        let results = await this.props.getClipsFunc(this.state.cursor);
+
+        if(results.clips.length === 0) {
+            this.setState({
+                cursor: null,
+                loading: false        
+            });
+        } else {
+            this.setState({
+                clips: [...this.state.clips, ...results.clips],
+                cursor: results._cursor,
+                loading: false        
+            });
         }
     }
 
-    componentDidMount() {
-        this.loadTopClips();
+    endReached = () => {
+        if(this.state.loading || !this.state.cursor) return;
+
+        this.setState(
+            {
+                loading: true
+            },
+            () => this.getMoreClips()
+        );
     }
 
-    async loadTopClips() {
-        let jsxElements = [];
-  
-        let results = await this.props.getClipsFunc();
-        if (!results) return;
-
-        for(let clip of results['clips'])  {
-          const passProps = {
+    addClip = ({item: clip}) => {
+        const passProps = {
             username: clip.broadcaster.display_name,
             key: clip.tracking_id,
             user_id: clip.broadcaster.id,
@@ -79,32 +94,40 @@ export default class ClipsList extends Component {
             embed_url: clip.embed_url,
             title: clip.title,
             onImagePress: this.props.toggleOverlay
-          };
-    
-          jsxElements.push(<ClipCard { ...passProps } />);
         };
-    
-        this.setState({
-          clip_cards: jsxElements,
-          loading: false,
-          page: results['cursor']
-        });
+
+        return <ClipCard { ...passProps } />;
     }
 
-    renderActivityIndicator() { 
-        if (this.state.loading) { 
-          return (
-            <ActivityIndicator color="black" size="large" style={ styles.spinner } />
-          ); 
+    renderActivityIndicator = () => {
+        let comp = null;
+        if (this.state.loading) {
+            comp = <ActivityIndicator color="black" size="large" style={ styles.spinner } />
         } 
+        return comp;
+    }
+
+    onScroll(event) {
+        if(this.props.onScrollFunc) this.props.onScrollFunc(event, this.state.totalHeight);   
+    }
+
+    onLayout({nativeEvent: { layout: {height}}}) {
+        this.setState({
+            totalHeight: height
+        });
     }
 
     render(){
         return(
-            <Content style={styles.content}>
-                {this.state.clip_cards}
-                {this.renderActivityIndicator()}
-            </Content>
+            <FlatList
+                style={styles.content}
+                data={this.state.clips}
+                renderItem={this.addClip}
+                keyExtractor={(item) => item.tracking_id}
+                onEndReached={this.endReached}
+                onEndReachedThreshold={0.80}
+                ListFooterComponent={this.renderActivityIndicator}
+            />            
         );  
     }
 };
@@ -112,12 +135,16 @@ export default class ClipsList extends Component {
 const styles = StyleSheet.create({
     content: {
       backgroundColor: 'gray',
-      flex: 1,
     },
     spinner: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       alignSelf: "center"
+    },
+    noClipsText: {
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: 'bold'
     }
 });

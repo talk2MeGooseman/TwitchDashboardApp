@@ -133,9 +133,23 @@ export default class TwitchAPI {
       return(result); 
     }
 
-    static async v5getTopClips(channel_name) {
+    static async v5getTopClips({channel_name, period='month', cursor=''}) {
       let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
-      const response = await fetch(`${V5_TWITCH_BASE_URL}/clips/top?channel=${channel_name}&limit=100&`, { 
+      const response = await fetch(`${V5_TWITCH_BASE_URL}/clips/top?channel=${channel_name}&limit=25&period=${period}&cursor=${cursor}`, { 
+          method: 'GET',
+          headers: {
+            "client-id": CLIENT_ID,
+            "accept": TWITCH_ACCEPT
+          }
+      });
+    
+      let result = await response.json();
+
+      return(result); 
+    }
+
+    static async v5getChannelVideos({channel_id, sort='time ', offset=0}) {
+      const response = await fetch(`${V5_TWITCH_BASE_URL}/channels/${channel_id}/videos?limit=25&offset=${offset}`, { 
           method: 'GET',
           headers: {
             "client-id": CLIENT_ID,
