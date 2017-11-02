@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import {
     Container,
+    Spinner,
 } from 'native-base';
 import TwitchAPI from '../lib/TwitchAPI';
 import ClipCard from '../components/ClipCard';
@@ -40,7 +41,7 @@ export default class UserVideosView extends Component {
         let results = await TwitchAPI.v5getChannelVideos({channel_id: channel_name, offset: offset});
 
         let videos = [...this.state.videos, ...results.videos];
-        console.log(videos.length);        
+     
         this.setState({
             videos: videos,
             totalVideo: results._total,
@@ -62,6 +63,15 @@ export default class UserVideosView extends Component {
         );
     }
 
+    toggleVideoOverlay = (url) => {
+        // let splits = url.split('/');
+        // if(splits.length === 0) return;
+
+        // const vID = splits.pop();
+        // let newUrl = 'http://player.twitch.tv/?video=v40464143&autoplay=false'
+        this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
+    }
+
     addVideoCard = ({item: video}) => {
         const passProps = {
             username: video.channel.display_name,
@@ -74,10 +84,26 @@ export default class UserVideosView extends Component {
             created_at: video.created_at,
             url: video.url,
             title: video.title,
-            onImagePress: () => {}
+            onImagePress: this.toggleVideoOverlay
         };
 
         return <ClipCard { ...passProps } />;
+    }
+
+    renderEmptyList = () => {
+        if (this.state.loading) {
+            return null;
+        } else {
+            return <Text style={{textAlign: 'center'}}>Nothing Here To See Move Along...</Text>;
+        }
+    }
+
+    renderFooter = () => {
+        if(this.state.loading) {
+            return(<Spinner color='black'/>);
+        } else {
+            return null;
+        }   
     }
 
     render() {
@@ -89,7 +115,9 @@ export default class UserVideosView extends Component {
                     keyExtractor={(item) => item._id}
                     renderItem={this.addVideoCard} 
                     onEndReached={this.endReached}
-                    onEndReachedThreshold={0.75}
+                    onEndReachedThreshold={0.50}
+                    ListFooterComponent={this.renderFooter()}
+                    ListEmptyComponent={this.renderEmptyList()}
                 /> 
             </Container>            
         );

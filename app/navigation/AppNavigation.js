@@ -4,9 +4,11 @@ import SplashScreen from '../views/SplashScreenView';
 import FollowingView from '../views/FollowingView';
 import UserClipsView from '../views/UserClipsView';
 import UserVideosView from '../views/UserVideosView';
+import VideoPlayerView from '../views/VideoPlayerView';
 import NativeBaseTheme from '../../native-base-theme/variables/platform';
 import {Title, Container} from 'native-base';
 
+// Tab View for Users 
 const UserViewTabNav = TabNavigator({
   UserClips: { screen: UserClipsView },
   UserVideos: { screen: UserVideosView},
@@ -15,6 +17,7 @@ const UserViewTabNav = TabNavigator({
   tabBarPosition: 'top',
   animationEnabled: true,
   lazy: true,
+  backBehavior: 'none',
   tabBarOptions: {
     indicatorStyle: {
       backgroundColor: 'white'
@@ -53,13 +56,14 @@ const FollowingStack = StackNavigator({
 // Drawer stack
 const DrawerStack = DrawerNavigator({
   TrendingClipsView: { screen: TrendingClipsView },
-  FollowingStack: { screen: FollowingStack }
+  FollowingStack: { screen: FollowingStack },
 });
 
 // Root Stack
 const PrimaryNav = StackNavigator({
     SplashScreen: { screen: SplashScreen},
-    DrawerStack: { screen: DrawerStack }
+    DrawerStack: { screen: DrawerStack },
+    VideoPlayerView: { screen: VideoPlayerView },
   }, {
   // Default config for all screens
   headerMode: 'none',

@@ -61,7 +61,7 @@ export default class ClipCard extends PureComponent {
         </CardItem>
         <CardItem cardBody>
           <Content>
-            <Button style={{ height: 272, width: null,}} transparent onPress={ () => this.props.onImagePress(this.props.embed_url) }>
+            <Button style={{ height: 272, width: null,}} transparent onPress={ () => this.props.onImagePress(this.props.embed_url || this.props.url) }>
               <Image source={ {uri: image_url} } style={{ height: 272, width: null, flex: 1 }} />
             </Button>
           </Content>

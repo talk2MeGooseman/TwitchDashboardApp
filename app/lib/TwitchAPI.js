@@ -118,9 +118,9 @@ export default class TwitchAPI {
         return result; 
     }
     
-    static async v5getUsersFollow() {
+    static async v5getUsersFollow(offset=0) {
       let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
-      const response = await fetch(`${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels?limit=100&`, { 
+      const response = await fetch(`${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels?limit=100&offset=${offset}`, { 
           method: 'GET',
           headers: {
             "client-id": CLIENT_ID,
@@ -163,6 +163,8 @@ export default class TwitchAPI {
     }
 
     static async v5getFollowedStreams(filterBy) {
+      let totalResults = [];
+      let result;
       let token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
       let type;
       
@@ -178,18 +180,20 @@ export default class TwitchAPI {
           break;
       }
 
-      const response = await fetch(`${V5_TWITCH_BASE_URL}/streams/followed?limit=100&stream_type=${type}`, { 
-          method: 'GET',
-          headers: {
-            "client-id": CLIENT_ID,
-            "accept": TWITCH_ACCEPT,
-            "Authorization": `OAuth ${token}`,            
-          }
-      });
-    
-      let result = await response.json();
+      do {
+        const response = await fetch(`${V5_TWITCH_BASE_URL}/streams/followed?limit=100&stream_type=${type}&offset=${totalResults.length}`, { 
+            method: 'GET',
+            headers: {
+              "client-id": CLIENT_ID,
+              "accept": TWITCH_ACCEPT,
+              "Authorization": `OAuth ${token}`,            
+            }
+        });
+        result = await response.json();
+        totalResults = totalResults.concat(result.streams);
+      } while(result._total > totalResults.length)
 
-      return(result); 
+      return(totalResults); 
     }
 
     static async fetchLiveUsers(user_ids) {

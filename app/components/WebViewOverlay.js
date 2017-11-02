@@ -7,12 +7,13 @@ import {
     WebView,
     Dimensions,
     Text,
+    Button
 } from 'react-native';
-import {Button} from 'native-base';
 
 export default class WebViewOverlay extends PureComponent {
     static propTypes = {
         url: PropTypes.string.isRequired,
+        closePlayer: PropTypes.func.isRequired,
     }
 
     render() {
@@ -30,11 +31,12 @@ export default class WebViewOverlay extends PureComponent {
 
         return (
             <View style={overlayStyles}>
-                <Button onPress={ this.props.toggleOverlay }><Text>Close</Text></Button>
+                <Button onPress={ () => { this.props.closePlayer() } } title="Close" />
                 <WebView
                     style={{flex:1, backgroundColor: 'black'}}
                     javaScriptEnabled={true}
                     source={{uri: this.props.url}}
+                    startInLoadingState={true}
                 />
             </View>
         );

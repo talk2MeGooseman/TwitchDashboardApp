@@ -29,10 +29,6 @@ export default class UserClipsView extends Component {
 
     constructor(props) {
         super(props);
-
-        this.state = {
-            showVideoOverlay: false
-        }
     }
 
     async getTopClips(cursor='') {
@@ -57,16 +53,7 @@ export default class UserClipsView extends Component {
     }
 
     toggleVideoOverlay(url) {
-        this.setState({
-          showVideoOverlay: !this.state.showVideoOverlay,
-          overlayUrl: url
-        });
-    }
-
-    renderVideoOverlay() {
-        if(!this.state.showVideoOverlay) return;
-  
-        return <WebViewOverlay url={this.state.overlayUrl} toggleOverlay={this.toggleVideoOverlay.bind(this)} />
+        this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
     }
 
     render(){
@@ -74,7 +61,6 @@ export default class UserClipsView extends Component {
         return(
             <Container>
                 {this.displayClips()}
-                {this.renderVideoOverlay()}
             </Container>    
         );
     }

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {AsyncStorage} from 'react-native';
+import {AsyncStorage, FlatList} from 'react-native';
 import { Title, Body, Spinner, Container, Content, Text, Header, Left, Button, Icon, Right, ActionSheet } from 'native-base';
 import LiveUserCard from '../components/LiveUserCard'
 import TwitchAPI from '../lib/TwitchAPI';
@@ -23,7 +23,8 @@ export default class FollowingView extends Component {
         this.state = {
             loading: true,
             users: [],
-            liveUsers: [],
+            streams: [],
+            totalChannels: 0,
             filter: CONSTANTS.ALL_INDEX
         };
     }
@@ -33,92 +34,81 @@ export default class FollowingView extends Component {
         this.getFollowers();
         navigation.setParams({ displayFilter: this.displayFilterOption.bind(this) });        
     }
+
     componentDidUpdate(prevProps, prevState){
         if(prevState.filter != this.state.filter) this.getFollowers();
-    } 
-
-    async getFollowers() {
-        let users = this.state.users;
-        if(this.state.filter === CONSTANTS.ALL_INDEX) {
-            let response = await TwitchAPI.v5getUsersFollow();
-            users = response.follows;
-        }
-        const liveUsers = await TwitchAPI.v5getFollowedStreams(this.state.filter);
-        this.setState({
-            users: users,
-            liveUsers: liveUsers.streams,
-            loading: false
-        });
     }
 
-    renderLiveUserCards() {
-        let elements = this.state.liveUsers.map(function(user) {
-            let props = {
-                user_id: `${user.channel._id}`,
-                key: user.channel._id, 
-                username: user.channel.display_name,
-                live: true,
-                start_time: user.created_at,
-                viewers_count: user.viewers,
-                game_title: user.game,
-                title: user.channel.status,
-                image_url: user.preview.large,
-                onUserPress: this.navigateUserView.bind(this)
-            };
+    getFollowers = async () => {
+        let users;
+        let total = 0;
+        let streams = this.state.streams;
 
-            return(<LiveUserCard {...props} />);
-        }.bind(this));
+        if(this.state.totalChannels > 0 && this.state.totalChannels === this.state.users.length) return;
+
+        if(streams.length === 0) {
+            streams = await TwitchAPI.v5getFollowedStreams(this.state.filter);
+        }
         
-        return elements;
+        if(this.state.filter === CONSTANTS.ALL_INDEX) {
+            let response = await TwitchAPI.v5getUsersFollow(this.state.users.length);
+            users = response.follows;
+            total = response._total;
+
+            users = users.map((user) => {
+                let streaming = streams.find((stream) => {
+                    return user.channel._id === `${stream.channel._id}`;
+                });
+
+                if(streaming) {
+                    user = Object.assign({}, user, streaming);
+                    user.isLive = true;
+                }
+
+                return user;
+            });
+            
+        } else {
+            users = streams;
+            total = streams.length;
+        }
+        
+        
+        this.setState({
+            users: [...this.state.users, ...users],
+            loading: false,
+            streams: streams,
+            totalChannels: total
+        });
     }
 
     navigateUserView(data) {
         this.props.navigation.navigate('UserView', data);
     }
 
-    renderAllUserCard(){
-        let elements = this.state.users.map(function(user) {
-            let userLive = this.state.liveUsers.find((live) => {
-                return user.channel._id === `${live.channel._id}`;
-            });
+    renderChannel(channel) {       
 
             let props = {
-                image_url: user.channel.logo,
-                user_id: user.channel._id,
-                key: user.channel._id, 
-                username: user.channel.display_name,
-                followers_count: user.channel.followers,
-                live: userLive !== undefined,
-                onUserPress: this.navigateUserView.bind(this)
+                image_url: channel.channel.logo,
+                channel_id: channel.channel._id,
+                key: channel.channel._id,
+                user_id: `${channel.channel._id}`,
+                username: channel.channel.display_name,
+                followers_count: channel.channel.followers,
+                onUserPress: this.navigateUserView.bind(this),
+                live: false
             };
 
-            if (userLive) {
-                props.start_time = userLive.created_at;
-                props.viewers_count = userLive.viewers;
-                props.game_title = userLive.game;
-                props.title = userLive.channel.status;
-                props.image_url = userLive.preview.large;
+            if (channel.isLive || this.state.filter !== CONSTANTS.ALL_INDEX) {
+                props.start_time = channel.created_at;
+                props.viewers_count = channel.viewers;
+                props.game_title = channel.game;
+                props.title = channel.channel.status;
+                //props.image_url = channel.preview.large;
+                props.live = true;
             }
 
             return(<LiveUserCard {...props} />);
-        }.bind(this));
-
-        return elements;
-    }
-
-    renderUsers() {
-        let elements = [];
-        
-        if(this.state.filter === CONSTANTS.LIVE_INDEX || this.state.filter === CONSTANTS.VOD_INDEX){
-            elements = this.renderLiveUserCards();
-        } else {
-            elements = this.renderAllUserCard();
-        }
-
-        if(elements.length === 0 && !this.state.loading) {
-            elements.push(<Text>No Results</Text>);
-        }
-        return(elements)
     }
 
     filterSelected(index) {
@@ -142,7 +132,8 @@ export default class FollowingView extends Component {
                 loading: true,
                 filter: selectedFilter,
                 users: [],
-                liveUsers: []
+                streams: [],
+                totalChannels: 0,                
             });
         }
     }
@@ -156,20 +147,35 @@ export default class FollowingView extends Component {
           },
           this.filterSelected.bind(this)
         );
-        this.props.navigation.setParams({filter: false});
     }
 
-    renderSpinner() {
-        if(this.state.loading) return(<Spinner color='black'/>);   
+    renderFooter = () => {
+        if(this.state.loading) {
+            return(<Spinner color='black'/>);
+        } else {
+            return null;
+        }   
     }
 
+    renderEmptyList = () => {
+        if (this.state.loading) {
+            return null;
+        } else {
+            return <Text style={{textAlign: 'center'}}>Nothing Here To See Move Along...</Text>;
+        }
+    }
     render() {
         return(
             <Container>
-                <Content>
-                    { this.renderUsers() }
-                    { this.renderSpinner() }
-                </Content>
+                    <FlatList 
+                        data={this.state.users}
+                        renderItem={({item: channel}) => this.renderChannel(channel)}
+                        keyExtractor={(channel) => channel.channel._id}
+                        onEndReached={this.getFollowers}
+                        onEndReachedThreshold={0.75}
+                        ListFooterComponent={this.renderFooter()}
+                        ListEmptyComponent={this.renderEmptyList()}
+                    />
             </Container>
         );
     }

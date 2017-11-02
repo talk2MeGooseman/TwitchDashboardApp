@@ -43,16 +43,12 @@ export default class TrendingClipsView extends Component {
     constructor() {
       super();
       this.state = {
-        showVideoOverlay: false,
         overlayUrl: 'https://clips.twitch.tv/embed?clip=AmazonianEncouragingLyrebirdAllenHuhu&tt_medium=clips_api&tt_content=embed'
       };  
     }
 
     toggleVideoOverlay(url) {
-      this.setState({
-        showVideoOverlay: !this.state.showVideoOverlay,
-        overlayUrl: url
-      });
+      this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});      
     }
 
     async getMostViewedClips() {
@@ -108,12 +104,6 @@ export default class TrendingClipsView extends Component {
       });
     }
 
-    renderVideoOverlay() {
-      if(!this.state.showVideoOverlay) return;
-
-      return <WebViewOverlay url={this.state.overlayUrl} toggleOverlay={this.toggleVideoOverlay.bind(this)} />
-    }
-
     render() {
       return (
         <Container>
@@ -140,7 +130,6 @@ export default class TrendingClipsView extends Component {
               {this.displayClips(true)}
             </Tab>
           </Tabs>
-          {this.renderVideoOverlay()}
         </Container>
       );
     }

@@ -117,6 +117,14 @@ export default class ClipsList extends Component {
         });
     }
 
+    renderEmptyList = () => {
+        if (this.state.loading) {
+            return null;
+        } else {
+            return <Text style={{textAlign: 'center'}}>Nothing Here To See Move Along...</Text>;
+        }
+    }
+
     render(){
         return(
             <FlatList
@@ -127,6 +135,7 @@ export default class ClipsList extends Component {
                 onEndReached={this.endReached}
                 onEndReachedThreshold={0.80}
                 ListFooterComponent={this.renderActivityIndicator}
+                ListEmptyComponent={this.renderEmptyList()}
             />            
         );  
     }
