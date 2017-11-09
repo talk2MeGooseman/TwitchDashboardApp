@@ -24,9 +24,8 @@ export default class ClipsList extends Component {
 
     state = {
         loading: true,
-        totalHeight: 0,
         clips: [],
-        cursor: '',
+        refreshing: false                    
     };    
 
     componentWillReceiveProps(nextProps){
@@ -45,7 +44,8 @@ export default class ClipsList extends Component {
         this.setState({
             clips: results.clips,
             cursor: results._cursor,
-            loading: false,            
+            loading: false,
+            refreshing: false      
         });
     }
 
@@ -118,11 +118,20 @@ export default class ClipsList extends Component {
     }
 
     renderEmptyList = () => {
-        if (this.state.loading) {
+        if (this.state.loading || this.state.refreshing) {
             return null;
         } else {
             return <Text style={{textAlign: 'center'}}>Nothing Here To See Move Along...</Text>;
         }
+    }
+
+    onRefresh = () => {
+        this.setState({
+            clip_cards: [],
+            loading: false,
+            refreshing: true,
+            clips: [],
+        }, () => {this.getClips()});
     }
 
     render(){
@@ -136,6 +145,8 @@ export default class ClipsList extends Component {
                 onEndReachedThreshold={0.80}
                 ListFooterComponent={this.renderActivityIndicator}
                 ListEmptyComponent={this.renderEmptyList()}
+                onRefresh={this.onRefresh}
+                refreshing={this.state.refreshing}
             />            
         );  
     }

@@ -11,9 +11,11 @@ class ReduxNavigation extends React.Component {
   componentDidMount() {
     BackHandler.addEventListener("hardwareBackPress", this.onBackPress);
   }
+
   componentWillUnmount() {
     BackHandler.removeEventListener("hardwareBackPress", this.onBackPress);
   }
+  
   onBackPress = () => {
     const { dispatch, nav } = this.props;
 

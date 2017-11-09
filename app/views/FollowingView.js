@@ -25,7 +25,8 @@ export default class FollowingView extends Component {
             users: [],
             streams: [],
             totalChannels: 0,
-            filter: CONSTANTS.ALL_INDEX
+            filter: CONSTANTS.ALL_INDEX,
+            refreshing: false
         };
     }
 
@@ -36,7 +37,7 @@ export default class FollowingView extends Component {
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(prevState.filter != this.state.filter) this.getFollowers();
+        if(prevState.filter != this.state.filter || this.state.refreshing) this.getFollowers();
     }
 
     getFollowers = async () => {
@@ -78,7 +79,8 @@ export default class FollowingView extends Component {
             users: [...this.state.users, ...users],
             loading: false,
             streams: streams,
-            totalChannels: total
+            totalChannels: total,
+            refreshing: false
         });
     }
 
@@ -164,6 +166,17 @@ export default class FollowingView extends Component {
             return <Text style={{textAlign: 'center'}}>Nothing Here To See Move Along...</Text>;
         }
     }
+
+    onRefresh = () => {
+        this.setState({
+            loading: true,
+            users: [],
+            streams: [],
+            totalChannels: 0,
+            refreshing: true            
+        });
+    }
+
     render() {
         return(
             <Container>
@@ -175,6 +188,8 @@ export default class FollowingView extends Component {
                         onEndReachedThreshold={0.75}
                         ListFooterComponent={this.renderFooter()}
                         ListEmptyComponent={this.renderEmptyList()}
+                        onRefresh={this.onRefresh}
+                        refreshing={this.state.refreshing}
                     />
             </Container>
         );

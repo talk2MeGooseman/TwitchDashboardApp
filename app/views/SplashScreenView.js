@@ -1,22 +1,23 @@
 import React, { PureComponent } from 'react';
 import { StyleSheet} from 'react-native';
-import { Content, Container, Spinner, H1} from 'native-base';
+import { Container, Spinner, H1} from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
-import TwitchAPI from '../lib/TwitchAPI';
+import { connect } from 'react-redux';
+import {
+    authUserIfNeeded,
+} from '../redux/actions.js';
 
-export default class SplashScreen extends PureComponent {
+class SplashScreen extends PureComponent {
     
     componentDidMount(){
-        this.getToken();
+        // this.getToken();
+        const { dispatch } = this.props.navigation;
+        dispatch(authUserIfNeeded());
     }
 
-    async getToken() {
-        const twitchAPI = new TwitchAPI();
-        let valid = await twitchAPI.tokenValid();
-        if (valid) { 
+    componentDidUpdate(prevProps, prevState) {
+        if(this.props.loggedIn) {
             this.startApp();
-        } else {
-            twitchAPI.getUserAccessToken(this.startApp.bind(this));
         }
     }
 
@@ -54,3 +55,9 @@ const styles = StyleSheet.create({
         backgroundColor: 'blue'
     }
 });
+
+const mapStateToProps = state => ({
+    loggedIn: state.authTwitchApp.loggedIn,
+});
+
+export default connect(mapStateToProps)(SplashScreen);

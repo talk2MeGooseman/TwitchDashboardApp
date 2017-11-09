@@ -1,4 +1,7 @@
 import { Linking, AsyncStorage } from 'react-native';
+import {
+  userAuthed,
+} from '../redux/actions.js'
 import CONSTANTS from './Constants';
 import SECRETS from './secrets';
 
@@ -13,31 +16,28 @@ export default class TwitchAPI {
       this.access_token = null;
     }
 
-    getUserAccessToken(callback) {
+    getUserAccessToken(dispatch) {
       const url = `${V5_TWITCH_BASE_URL}/oauth2/authorize?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&scope=${SCOPES}&force_verify=true`;
-      Linking.openURL(url).catch(err => alert('An error occurred', err));;
+      Linking.openURL(url).catch(err => alert('An error occurred', err));
       
-      Linking.addEventListener('url', handleAccessTokenResponse );
-
-      async function handleAccessTokenResponse(event){
+      Linking.addEventListener('url', async (event) => {
         const access_token = event.url.toString().match( /access_token=([^&]+)/ );
+        let valid = false;
         // Check for issue with Kindle Fire Tablet
         if (Array.isArray(access_token) && access_token.length === 2) {
           this.access_token = access_token[1];
           AsyncStorage.setItem('TWITCH:ACCESS_TOKEN:key',  this.access_token);
-          await this.tokenValid();
-
-          callback(access_token[1]);
+          valid = await this.tokenValid();
         } else if(access_token) {
           this.access_token = access_token;
           AsyncStorage.setItem('TWITCH:ACCESS_TOKEN:key',  this.access_token);
-          await this.tokenValid();
-
-          callback(access_token);
+          valid = await this.tokenValid();
         } else {
-          callback(null);
+          valid = false;
         }
-      }
+
+        dispatch(userAuthed(valid));
+      });
     }
 
     async tokenValid(token) {

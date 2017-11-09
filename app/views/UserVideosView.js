@@ -26,7 +26,8 @@ export default class UserVideosView extends Component {
         this.state = {
             videos: [],
             totalVideo: null,
-            loading: true
+            loading: true,
+            refreshing: false,
         };
     }
 
@@ -45,7 +46,8 @@ export default class UserVideosView extends Component {
         this.setState({
             videos: videos,
             totalVideo: results._total,
-            loading: false
+            loading: false,
+            refreshing: false,
         });
     }
 
@@ -106,6 +108,15 @@ export default class UserVideosView extends Component {
         }   
     }
 
+    onRefresh = () => {
+        this.setState({
+            videos: [],
+            totalVideo: null,
+            loading: true,
+            refreshing: true,
+        }, () => { this.getVideos() } );
+    }
+
     render() {
         return(
             <Container>
@@ -118,6 +129,8 @@ export default class UserVideosView extends Component {
                     onEndReachedThreshold={0.50}
                     ListFooterComponent={this.renderFooter()}
                     ListEmptyComponent={this.renderEmptyList()}
+                    onRefresh={this.onRefresh}
+                    refreshing={this.state.refreshing}
                 /> 
             </Container>            
         );
