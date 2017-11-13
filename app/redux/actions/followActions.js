@@ -12,13 +12,6 @@ export const fetchingFollowing = () => {
     }
 }
 
-export const filterFollowing = (filter) => {
-    return {
-        type: FILTER_FOLLOWING,
-        filter
-    }
-}
-
 export const refreshFollowing = () => {
     return async (dispatch, getState) => {
         dispatch(refreshingFollowing());

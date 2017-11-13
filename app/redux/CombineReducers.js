@@ -2,7 +2,6 @@ import AppNavigation from '../navigation/AppNavigation';
 import { combineReducers } from 'redux';
 import { AUTH_USER , USER_AUTHED } from './actions/userAuthActions';
 import { FOLLOWING_RESPONSE, FETCHING_FOLLOWING, REFRESH_FOLLOWING, FILTER_FOLLOWING } from './actions/followActions';
-import TwitchAPI from '../lib/TwitchAPI';
 import CONSTANTS from '../lib/Constants';
 
 const navReducer = (state, action) => {
@@ -20,14 +19,14 @@ function authTwitchApp(state = { loggedIn: false }, action) {
   }
 }
 
-function userFollowing(state = { following: [], streaming: [], total: 0, loading: false, filter: CONSTANTS.ALL_INDEX, refreshing: false }, action) {
+function userFollowing(state = { following: [], total: 0, loading: false, refreshing: false }, action) {
   switch (action.type) {
     case FILTER_FOLLOWING:
       return Object.assign({}, state, { filter: action.filter });
     case REFRESH_FOLLOWING:
-      return Object.assign({}, state, { refreshing: true, following: [], streaming: [] });    
+      return Object.assign({}, state, { refreshing: true, following: [] });    
     case FETCHING_FOLLOWING:
-      return Object.assign({}, state, { loading: true, following: [], streaming: [] });
+      return Object.assign({}, state, { loading: true, following: [] });
     case FOLLOWING_RESPONSE:
       return Object.assign({}, state, { following: action.following, total: action.total, loading: false, refreshing: false });
     default:

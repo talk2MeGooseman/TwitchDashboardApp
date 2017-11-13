@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {AsyncStorage, FlatList} from 'react-native';
-import { Title, Body, Spinner, Container, Content, Text, Header, Left, Button, Icon, Right, ActionSheet } from 'native-base';
+import { Title, Body, Spinner, Container, Content, Text, Header, Left, Button, Icon, Right, ActionSheet, Thumbnail, ListItem } from 'native-base';
 import LiveUserCard from '../components/LiveUserCard'
 import TwitchAPI from '../lib/TwitchAPI';
 import CONSTANTS from '../lib/Constants';
@@ -15,64 +15,15 @@ class FollowingView extends Component {
             title: 'Following',
             headerTitle: <Title>Following</Title>,
             headerLeft: <Button onPress={() => {navigation.navigate('DrawerOpen');} }><Icon name="menu" /></Button>,
-            headerRight: <Button onPress={() => params.displayFilter() }><Icon name="ios-funnel" /></Button>     
         };
     };
 
     componentDidMount() {
         const { dispatch, setParams } = this.props.navigation;
         dispatch(fetchFollowing());
-        setParams({ displayFilter: this.displayFilterOption.bind(this) });        
     }
 
     componentDidUpdate(prevProps, prevState){
-        if(!this.props.loading) {
-            this.displayFollowers();
-        }
-        if(this.props.filter != prevProps.filter) {
-            const { dispatch } = this.props.navigation;
-        }
-    }
-
-    displayFollowers = () => {
-        let followings;
-        let total = 0;
-        let streams = this.props.streaming;
-
-        //if(this.state.totalChannels > 0 && this.state.totalChannels === this.state.followings.length) return;
-
-        // if(streams.length === 0) {
-        //     streams = await TwitchAPI.v5getFollowedStreams(this.state.filter);
-        // }
-        
-        if(this.props.filter === CONSTANTS.ALL_INDEX) {
-            const { following, total } = this.props;
-
-            following = following.map((user) => {
-                let streaming = streams.find((stream) => {
-                    return user.channel._id === `${stream.channel._id}`;
-                });
-
-                if(streaming) {
-                    user = Object.assign({}, user, streaming);
-                    user.isLive = true;
-                }
-
-                return user;
-            });
-            
-        } else {
-            following = streams;
-            total = streams.length;
-        }
-        
-        
-        // this.setState({
-        //     loading: false,
-        //     streams: streams,
-        //     totalChannels: total,
-        //     refreshing: false
-        // });
     }
 
     navigateUserView(data) {
@@ -81,59 +32,31 @@ class FollowingView extends Component {
 
     renderChannel(channel) {       
 
-            let props = {
-                image_url: channel.channel.logo,
-                channel_id: channel.channel._id,
-                key: channel.channel._id,
-                user_id: `${channel.channel._id}`,
-                username: channel.channel.display_name,
-                followers_count: channel.channel.followers,
-                onUserPress: this.navigateUserView.bind(this),
-                live: false
-            };
+        let props = {
+            image_url: channel.channel.logo,
+            channel_id: channel.channel._id,
+            key: channel.channel._id,
+            user_id: `${channel.channel._id}`,
+            username: channel.channel.display_name,
+            followers_count: channel.channel.followers,
+            onUserPress: this.navigateUserView.bind(this),
+            live: false
+        };
 
-            if (channel.isLive || this.props.filter !== CONSTANTS.ALL_INDEX) {
-                props.start_time = channel.created_at;
-                props.viewers_count = channel.viewers;
-                props.game_title = channel.game;
-                props.title = channel.channel.status;
-                //props.image_url = channel.preview.large;
-                props.live = true;
-            }
-
-            return(<LiveUserCard {...props} />);
-    }
-
-    filterSelected(index) {
-        let selectedFilter = this.props.filter;
-        switch (index) {
-            case CONSTANTS.ALL_INDEX:
-                selectedFilter = CONSTANTS.ALL_INDEX;
-                break;
-            case CONSTANTS.LIVE_INDEX:
-                selectedFilter = CONSTANTS.LIVE_INDEX;
-                break;
-            case CONSTANTS.VOD_INDEX:
-                selectedFilter = CONSTANTS.VOD_INDEX;
-                break;
-            default:
-                break;
-        }
-
-        if (this.props.filter !== selectedFilter) {
-            const { dispatch } = this.props.navigation;
-            dispatch(filterFollowing(selectedFilter));
-        }
-    }
-
-    displayFilterOption(){
-        ActionSheet.show(
-          {
-            options: CONSTANTS.FOLLOWING_FILTERS,
-            cancelButtonIndex: CONSTANTS.CANCEL_INDEX,
-            title: "Filter By"
-          },
-          this.filterSelected.bind(this)
+        // return (<LiveUserCard {...props} />);
+        return(
+            <ListItem avatar>
+              <Left>
+                <Thumbnail source={{ uri: channel.channel.logo }} />
+              </Left>
+              <Body>
+                <Text>{ channel.channel.display_name }</Text>
+                <Text note>Doing what you like will always keep you happy . .</Text>
+              </Body>
+              <Right>
+                <Text note>3:43 pm</Text>
+              </Right>
+            </ListItem>
         );
     }
 
@@ -182,8 +105,6 @@ const mapStateToProps = state => ({
     total: state.userFollowing.total,
     loading: state.userFollowing.loading,
     refreshing: state.userFollowing.refreshing,
-    filter: state.userFollowing.filter,
-    streaming: state.userFollowing.streaming,
 });
 
 export default connect(mapStateToProps)(FollowingView);
