@@ -1,14 +1,16 @@
 import AppNavigation from '../navigation/AppNavigation';
 import { combineReducers } from 'redux';
-import { AUTH_USER , USER_AUTHED } from './actions';
+import { AUTH_USER , USER_AUTHED } from './actions/userAuthActions';
+import { FOLLOWING_RESPONSE, FETCHING_FOLLOWING, REFRESH_FOLLOWING, FILTER_FOLLOWING } from './actions/followActions';
 import TwitchAPI from '../lib/TwitchAPI';
+import CONSTANTS from '../lib/Constants';
 
 const navReducer = (state, action) => {
   const newState = AppNavigation.router.getStateForAction(action, state)
   return newState || state
 }
 
-function authTwitchApp(state = { valid: false }, action) {
+function authTwitchApp(state = { loggedIn: false }, action) {
   switch (action.type) {
     case AUTH_USER:
     case USER_AUTHED:
@@ -18,10 +20,25 @@ function authTwitchApp(state = { valid: false }, action) {
   }
 }
 
+function userFollowing(state = { following: [], streaming: [], total: 0, loading: false, filter: CONSTANTS.ALL_INDEX, refreshing: false }, action) {
+  switch (action.type) {
+    case FILTER_FOLLOWING:
+      return Object.assign({}, state, { filter: action.filter });
+    case REFRESH_FOLLOWING:
+      return Object.assign({}, state, { refreshing: true, following: [], streaming: [] });    
+    case FETCHING_FOLLOWING:
+      return Object.assign({}, state, { loading: true, following: [], streaming: [] });
+    case FOLLOWING_RESPONSE:
+      return Object.assign({}, state, { following: action.following, total: action.total, loading: false, refreshing: false });
+    default:
+      return state;
+  }
+}
+
 const rootReducer = combineReducers({
   nav: navReducer,
   authTwitchApp,
-  // other reducers here
+  userFollowing,
 });
 
 export default rootReducer;

@@ -5,7 +5,7 @@ import { Col, Row, Grid } from 'react-native-easy-grid';
 import { connect } from 'react-redux';
 import {
     authUserIfNeeded,
-} from '../redux/actions.js';
+} from '../redux/actions/userAuthActions';
 
 class SplashScreen extends PureComponent {
     

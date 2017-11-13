@@ -1,4 +1,4 @@
-import TwitchAPI from '../lib/TwitchAPI';
+import TwitchAPI from '../../lib/TwitchAPI';
 
 export const AUTH_USER = 'AUTH_USER';
 export const USER_AUTHED = 'USER_AUTHED'
@@ -18,8 +18,8 @@ export const userAuthed = (loggedIn) => {
 
 export function authUserIfNeeded() {
     return async (dispatch, getState) => {
-        // let loggedIn = await shouldAuthUser(getState())
-        if (!false) {
+        let loggedIn = await shouldAuthUser(getState())
+        if (!loggedIn) {
             return dispatch(getToken());
         } else {
             return dispatch(userAuthed(true));

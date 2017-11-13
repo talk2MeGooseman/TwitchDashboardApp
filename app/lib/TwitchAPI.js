@@ -1,7 +1,7 @@
 import { Linking, AsyncStorage } from 'react-native';
 import {
   userAuthed,
-} from '../redux/actions.js'
+} from '../redux/actions/userAuthActions'
 import CONSTANTS from './Constants';
 import SECRETS from './secrets';
 
