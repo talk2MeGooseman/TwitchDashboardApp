@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {AsyncStorage, FlatList} from 'react-native';
+import { AsyncStorage, FlatList } from 'react-native';
 import { Title, Body, Spinner, Container, Content, Text, Header, Left, Button, Icon, Right, ActionSheet, Thumbnail, ListItem } from 'native-base';
 import LiveUserCard from '../components/LiveUserCard'
 import TwitchAPI from '../lib/TwitchAPI';
@@ -14,7 +14,7 @@ class FollowingView extends Component {
             drawerLabel: 'Following',
             title: 'Following',
             headerTitle: <Title>Following</Title>,
-            headerLeft: <Button onPress={() => {navigation.navigate('DrawerOpen');} }><Icon name="menu" /></Button>,
+            headerLeft: <Button onPress={() => { navigation.navigate('DrawerOpen'); }}><Icon name="menu" /></Button>,
         };
     };
 
@@ -23,78 +23,68 @@ class FollowingView extends Component {
         dispatch(fetchFollowing());
     }
 
-    componentDidUpdate(prevProps, prevState){
+    componentDidUpdate(prevProps, prevState) {
     }
 
-    navigateUserView(data) {
+    navigateUserView = (data) => {
         this.props.navigation.navigate('UserView', data);
     }
 
-    renderChannel(channel) {       
+    renderChannel(channel) {
 
-        let props = {
-            image_url: channel.channel.logo,
-            channel_id: channel.channel._id,
-            key: channel.channel._id,
-            user_id: `${channel.channel._id}`,
-            username: channel.channel.display_name,
-            followers_count: channel.channel.followers,
-            onUserPress: this.navigateUserView.bind(this),
-            live: false
-        };
+        let image_url = channel.channel.logo || "http://via.placeholder.com/300x533?text=?";
 
-        // return (<LiveUserCard {...props} />);
-        return(
-            <ListItem avatar>
-              <Left>
-                <Thumbnail source={{ uri: channel.channel.logo }} />
-              </Left>
-              <Body>
-                <Text>{ channel.channel.display_name }</Text>
-                <Text note>Doing what you like will always keep you happy . .</Text>
-              </Body>
-              <Right>
-                <Text note>3:43 pm</Text>
-              </Right>
+        return (
+            <ListItem avatar onPress={() => this.navigateUserView(props)}>
+                <Left>
+                    <Thumbnail source={{ uri: image_url }} />
+                </Left>
+                <Body>
+                    <Text>{channel.channel.display_name}</Text>
+                    <Text note>{channel.channel.status}</Text>
+                    <Text note>Followers: {channel.channel.followers}</Text>
+                </Body>
+                <Right />
             </ListItem>
         );
     }
 
     renderFooter = () => {
-        if(this.props.loading) {
-            return(<Spinner color='black'/>);
+        if (this.props.loading) {
+            return (<Spinner color='black' />);
         } else {
             return null;
-        }   
+        }
     }
 
     renderEmptyList = () => {
         if (this.props.loading || this.props.refreshing) {
             return null;
         } else {
-            return <Text style={{textAlign: 'center'}}>Nothing Here To See Move Along...</Text>;
+            return <Text style={{ textAlign: 'center' }}>Nothing Here To See Move Along...</Text>;
         }
     }
 
     onRefresh = () => {
-        const { dispatch } = this.props.navigation;        
+        const { dispatch } = this.props.navigation;
         dispatch(refreshFollowing());
     }
 
     render() {
-        return(
+        return (
             <Container>
-                    <FlatList 
-                        data={this.props.following}
-                        renderItem={({item: channel}) => this.renderChannel(channel)}
-                        keyExtractor={(channel) => channel.channel._id}
-                        onEndReached={() => {}}
-                        onEndReachedThreshold={0.75}
-                        ListFooterComponent={this.renderFooter()}
-                        ListEmptyComponent={this.renderEmptyList()}
-                        onRefresh={this.onRefresh}
-                        refreshing={this.props.refreshing}
-                    />
+                <FlatList
+                    style={{ backgroundColor: 'white' }}
+                    data={this.props.following}
+                    renderItem={({ item: channel }) => this.renderChannel(channel)}
+                    keyExtractor={(channel) => channel.channel._id}
+                    onEndReached={() => { }}
+                    onEndReachedThreshold={0.75}
+                    ListFooterComponent={this.renderFooter()}
+                    ListEmptyComponent={this.renderEmptyList()}
+                    onRefresh={this.onRefresh}
+                    refreshing={this.props.refreshing}
+                />
             </Container>
         );
     }
