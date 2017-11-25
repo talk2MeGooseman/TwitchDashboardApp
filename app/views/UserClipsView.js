@@ -4,6 +4,7 @@ import ClipCard from '../components/ClipCard';
 import WebViewOverlay from '../components/WebViewOverlay';
 import ClipsList from '../components/ClipsList';
 import TwitchAPI from '../lib/TwitchAPI';
+import { connect } from 'react-redux';
 import {
     Text,
     Container,
@@ -18,11 +19,12 @@ import {
     Button,
     Icon
 } from 'native-base';
+import { fetchUsersClips, fetchingUserClips, refreshUserClips } from '../redux/actions/userClipsActions';
 
-export default class UserClipsView extends Component {
+class UserClipsView extends Component {
     static navigationOptions = ({navigation}) => {
         return({
-            headerTitle: navigation.state.params.username,
+            headerTitle: navigation.state.params.display_name,
             title: 'Clips'
         });
     };
@@ -31,25 +33,33 @@ export default class UserClipsView extends Component {
         super(props);
     }
 
-    async getTopClips(cursor='') {
-        console.log('Cursor value:', cursor);
-        let channel_name = this.props.navigation.state.params.username;
-        let results = await TwitchAPI.v5getTopClips({channel_name: channel_name, cursor: cursor});
+    getMoreClips() {
+        if(!this.props.cursor) {
+            console.log('No more items to grab');
+            return;
+        }
 
-       return results;
+        const { dispatch } = this.props.navigation;
+        let channel_name = this.props.navigation.state.params.display_name;
+        dispatch(fetchUsersClips(channel_name, this.props.cursor));
     }
 
-    componentDidUpdate(prevProps, prevState) {
-
+    componentDidMount() {
+        const { dispatch } = this.props.navigation;
+        let channel_name = this.props.navigation.state.params.display_name;
+        dispatch(refreshUserClips(channel_name));
     }
 
     displayClips() {
         return(
             <ClipsList 
-                getClipsFunc={this.getTopClips.bind(this)}
+                data={this.props.clips}
+                onFetchNextPage={this.getMoreClips.bind(this)}
                 toggleOverlay={ this.toggleVideoOverlay.bind(this) } 
-                shouldPage={true}
-            />);                
+                refreshing={this.props.refreshing}
+                loading={this.props.loading}
+            />
+        );                
     }
 
     toggleVideoOverlay(url) {
@@ -65,3 +75,12 @@ export default class UserClipsView extends Component {
         );
     }
 }
+
+const mapStateToProps = state => ({
+    clips: state.userClips.clips,
+    cursor: state.userClips.cursor,
+    loading: state.userClips.loading,
+    refreshing: state.userClips.refreshing,
+});
+
+export default connect(mapStateToProps)(UserClipsView);

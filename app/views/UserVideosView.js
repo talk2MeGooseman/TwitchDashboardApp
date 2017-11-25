@@ -37,9 +37,9 @@ export default class UserVideosView extends Component {
 
     async getVideos() {
         let offset = this.state.videos.length;
-        let channel_name = this.props.navigation.state.params.user_id;
+        let channel_id = this.props.navigation.state.params._id;
 
-        let results = await TwitchAPI.v5getChannelVideos({channel_id: channel_name, offset: offset});
+        let results = await TwitchAPI.v5getChannelVideos({channel_id: channel_id, offset: offset});
 
         let videos = [...this.state.videos, ...results.videos];
      

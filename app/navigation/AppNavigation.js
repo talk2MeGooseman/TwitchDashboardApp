@@ -55,8 +55,8 @@ const FollowingStack = StackNavigator({
 
 // Drawer stack
 const DrawerStack = DrawerNavigator({
-  TrendingClipsView: { screen: TrendingClipsView },
   FollowingStack: { screen: FollowingStack },
+  TrendingClipsView: { screen: TrendingClipsView },
 });
 
 // Root Stack

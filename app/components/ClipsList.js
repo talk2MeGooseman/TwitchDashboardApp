@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { PureComponent } from 'react';
 import { PropTypes } from 'prop-types';
 import {
   StyleSheet,
@@ -14,70 +14,20 @@ import {
 import ClipCard from '../components/ClipCard';
 import TwitchAPI from '../lib/TwitchAPI';
 
-export default class ClipsList extends Component {
+export default class ClipsList extends PureComponent {
     static propTypes = {
         toggleOverlay: PropTypes.func.isRequired,
-        getClipsFunc: PropTypes.func.isRequired,
-        shouldPage: PropTypes.bool
+        onFetchNextPage: PropTypes.func,
+        data: PropTypes.array,
+        loading: PropTypes.bool
     };
 
-
-    state = {
-        loading: true,
-        clips: [],
-        refreshing: false                    
-    };    
-
     componentWillReceiveProps(nextProps){
-        this.setState({
-            clip_cards: [],
-            loading: true
-        });
-    }
-
-    componentDidMount() {
-        this.getClips();
-    }
-
-    async getClips() { 
-        let results = await this.props.getClipsFunc();
-        this.setState({
-            clips: results.clips,
-            cursor: results._cursor,
-            loading: false,
-            refreshing: false      
-        });
-    }
-
-    // FIXME: Weird flat list issues
-    async getMoreClips() {
-        if(!this.props.shouldPage || this.state.clips.length === 0) return;
-        
-        let results = await this.props.getClipsFunc(this.state.cursor);
-
-        if(results.clips.length === 0) {
-            this.setState({
-                cursor: null,
-                loading: false        
-            });
-        } else {
-            this.setState({
-                clips: [...this.state.clips, ...results.clips],
-                cursor: results._cursor,
-                loading: false        
-            });
-        }
     }
 
     endReached = () => {
-        if(this.state.loading || !this.state.cursor) return;
-
-        this.setState(
-            {
-                loading: true
-            },
-            () => this.getMoreClips()
-        );
+        if(this.props.loading) return;
+        this.props.onFetchNextPage();
     }
 
     addClip = ({item: clip}) => {
@@ -101,24 +51,14 @@ export default class ClipsList extends Component {
 
     renderActivityIndicator = () => {
         let comp = null;
-        if (this.state.loading) {
+        if (this.props.loading) {
             comp = <ActivityIndicator color="black" size="large" style={ styles.spinner } />
         } 
         return comp;
     }
 
-    onScroll(event) {
-        if(this.props.onScrollFunc) this.props.onScrollFunc(event, this.state.totalHeight);   
-    }
-
-    onLayout({nativeEvent: { layout: {height}}}) {
-        this.setState({
-            totalHeight: height
-        });
-    }
-
     renderEmptyList = () => {
-        if (this.state.loading || this.state.refreshing) {
+        if (this.props.loading || this.props.refreshing) {
             return null;
         } else {
             return <Text style={{textAlign: 'center'}}>Nothing Here To See Move Along...</Text>;
@@ -126,19 +66,14 @@ export default class ClipsList extends Component {
     }
 
     onRefresh = () => {
-        this.setState({
-            clip_cards: [],
-            loading: false,
-            refreshing: true,
-            clips: [],
-        }, () => {this.getClips()});
+        // TODO Add in action to fresh clips
     }
 
     render(){
         return(
             <FlatList
                 style={styles.content}
-                data={this.state.clips}
+                data={this.props.data}
                 renderItem={this.addClip}
                 keyExtractor={(item) => item.tracking_id}
                 onEndReached={this.endReached}
@@ -146,7 +81,7 @@ export default class ClipsList extends Component {
                 ListFooterComponent={this.renderActivityIndicator}
                 ListEmptyComponent={this.renderEmptyList()}
                 onRefresh={this.onRefresh}
-                refreshing={this.state.refreshing}
+                refreshing={this.props.refreshing}
             />            
         );  
     }

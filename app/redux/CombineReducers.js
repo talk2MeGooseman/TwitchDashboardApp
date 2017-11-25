@@ -2,6 +2,7 @@ import AppNavigation from '../navigation/AppNavigation';
 import { combineReducers } from 'redux';
 import { AUTH_USER , USER_AUTHED } from './actions/userAuthActions';
 import { FOLLOWING_RESPONSE, FETCHING_FOLLOWING, REFRESH_FOLLOWING, FILTER_FOLLOWING } from './actions/followActions';
+import { FETCHING_USER_CLIPS, USER_CLIPS_RESPONSE, REFRESH_USER_CLIPS } from "./actions/userClipsActions";
 import CONSTANTS from '../lib/Constants';
 
 const navReducer = (state, action) => {
@@ -34,10 +35,24 @@ function userFollowing(state = { following: [], total: 0, loading: false, refres
   }
 }
 
+function userClips(state = { clips: [], cursor: '', loading: false, refreshing: false }, action) {
+  switch (action.type) {
+    case REFRESH_USER_CLIPS:
+      return Object.assign({}, state, { clips: [], refreshing: true});
+    case FETCHING_USER_CLIPS:
+      return Object.assign({}, state, { loading: true });
+    case USER_CLIPS_RESPONSE:
+      return Object.assign({}, state, { clips: state.clips.concat(action.clips), cursor: action.cursor, loading: false, refreshing: false });
+    default:
+      return state;
+  }
+}
+
 const rootReducer = combineReducers({
   nav: navReducer,
   authTwitchApp,
   userFollowing,
+  userClips,
 });
 
 export default rootReducer;

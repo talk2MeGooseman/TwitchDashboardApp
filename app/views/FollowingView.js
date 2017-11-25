@@ -27,22 +27,23 @@ class FollowingView extends Component {
     }
 
     navigateUserView = (data) => {
+        console.log(data);
         this.props.navigation.navigate('UserView', data);
     }
 
-    renderChannel(channel) {
+    renderChannel(channelInfo) {
 
-        let image_url = channel.channel.logo || "http://via.placeholder.com/300x533?text=?";
+        let image_url = channelInfo.channel.logo || "http://via.placeholder.com/300x533?text=?";
 
         return (
-            <ListItem avatar onPress={() => this.navigateUserView(props)}>
+            <ListItem avatar onPress={() => this.navigateUserView(channelInfo.channel)}>
                 <Left>
                     <Thumbnail source={{ uri: image_url }} />
                 </Left>
                 <Body>
-                    <Text>{channel.channel.display_name}</Text>
-                    <Text note>{channel.channel.status}</Text>
-                    <Text note>Followers: {channel.channel.followers}</Text>
+                    <Text>{channelInfo.channel.display_name}</Text>
+                    <Text note>{channelInfo.channel.status}</Text>
+                    <Text note>Followers: {channelInfo.channel.followers}</Text>
                 </Body>
                 <Right />
             </ListItem>
