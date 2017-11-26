@@ -11,23 +11,14 @@ import {
 } from 'react-native';
 import { 
   Container,
-  Header,
   Button,
   Icon,
-  Left,
-  Right,
-  Tab,
-  Tabs,
   Title,
-  Body,
   ActionSheet
 } from 'native-base';
-import TwitchAPI from '../lib/TwitchAPI';
 import ClipsList from '../components/ClipsList';
-import WebViewOverlay from '../components/WebViewOverlay';
 import { fetchTrendingClips, setTrendingClipsCount } from "../redux/actions/topClipsActions";
 import { connect } from 'react-redux';
-import Content from '../../native-base-theme/components/Content';
 
 const TAB1_NAME = "Most Viewed";
 const TAB2_NAME = "Trending";

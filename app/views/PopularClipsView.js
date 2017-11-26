@@ -13,15 +13,10 @@ import {
   Container,
   Button,
   Icon,
-  Left,
-  Right,
   Title,
-  Body,
   ActionSheet
 } from 'native-base';
-import TwitchAPI from '../lib/TwitchAPI';
 import ClipsList from '../components/ClipsList';
-import WebViewOverlay from '../components/WebViewOverlay';
 import { fetchSuggestedTopClips, setSuggestedClipsCount } from "../redux/actions/topClipsActions";
 import { connect } from 'react-redux';
 

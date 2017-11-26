@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
-import { AsyncStorage, FlatList } from 'react-native';
-import { Title, Body, Spinner, Container, Content, Text, Header, Left, Button, Icon, Right, ActionSheet, Thumbnail, ListItem } from 'native-base';
-import LiveUserCard from '../components/LiveUserCard'
-import TwitchAPI from '../lib/TwitchAPI';
+import { FlatList } from 'react-native';
+import { Title, Body, Spinner, Container, Text, Left, Button, Icon, Right, ActionSheet, Thumbnail, ListItem } from 'native-base';
 import CONSTANTS from '../lib/Constants';
 import { connect } from 'react-redux';
 import { fetchFollowing, refreshFollowing, filterFollowing } from '../redux/actions/followActions';

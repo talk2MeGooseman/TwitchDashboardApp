@@ -10,7 +10,6 @@ import {
     Container,
     Spinner,
 } from 'native-base';
-import TwitchAPI from '../lib/TwitchAPI';
 import ClipCard from '../components/ClipCard';
 import { connect } from 'react-redux';
 import { fetchUsersVideos, refreshUserVideos} from '../redux/actions/userVideoActions';

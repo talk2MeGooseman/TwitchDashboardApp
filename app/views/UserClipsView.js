@@ -1,23 +1,9 @@
 import React, {Component} from 'react';
 import {View} from 'react-native';
-import ClipCard from '../components/ClipCard';
-import WebViewOverlay from '../components/WebViewOverlay';
 import ClipsList from '../components/ClipsList';
-import TwitchAPI from '../lib/TwitchAPI';
 import { connect } from 'react-redux';
 import {
-    Text,
     Container,
-    Header,
-    Left,
-    Right,
-    Content,
-    Body,
-    Title,
-    Tab,
-    Tabs,
-    Button,
-    Icon
 } from 'native-base';
 import { fetchUsersClips, fetchingUserClips, refreshUserClips } from '../redux/actions/userClipsActions';
 
