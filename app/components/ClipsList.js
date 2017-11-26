@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { PropTypes } from 'prop-types';
 import {
   StyleSheet,
@@ -14,20 +14,23 @@ import {
 import ClipCard from '../components/ClipCard';
 import TwitchAPI from '../lib/TwitchAPI';
 
-export default class ClipsList extends PureComponent {
+export default class ClipsList extends Component {
     static propTypes = {
         toggleOverlay: PropTypes.func.isRequired,
         onFetchNextPage: PropTypes.func,
+        onRefresh: PropTypes.func,
         data: PropTypes.array,
-        loading: PropTypes.bool
+        loading: PropTypes.bool,
+        refreshing: PropTypes.bool,
     };
-
-    componentWillReceiveProps(nextProps){
-    }
 
     endReached = () => {
         if(this.props.loading) return;
-        this.props.onFetchNextPage();
+        if(this.props.onFetchNextPage) {
+            this.props.onFetchNextPage();
+        } else {
+            return false;
+        }
     }
 
     addClip = ({item: clip}) => {
@@ -65,8 +68,20 @@ export default class ClipsList extends PureComponent {
         }
     }
 
+    renderHeader = () => {
+        if(this.props.renderHeader) {
+            return this.props.renderHeader();
+        } else {
+            return false;
+        }
+    }
+
     onRefresh = () => {
-        // TODO Add in action to fresh clips
+        if(this.props.onRefresh) {
+            this.props.onRefresh();
+        } else {
+            return false
+        }
     }
 
     render(){
@@ -78,8 +93,9 @@ export default class ClipsList extends PureComponent {
                 keyExtractor={(item) => item.tracking_id}
                 onEndReached={this.endReached}
                 onEndReachedThreshold={0.80}
+                ListHeaderComponent={this.renderHeader}
                 ListFooterComponent={this.renderActivityIndicator}
-                ListEmptyComponent={this.renderEmptyList()}
+                ListEmptyComponent={this.renderEmptyList}
                 onRefresh={this.onRefresh}
                 refreshing={this.props.refreshing}
             />            

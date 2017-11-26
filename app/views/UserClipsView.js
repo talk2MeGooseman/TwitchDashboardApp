@@ -45,6 +45,10 @@ class UserClipsView extends Component {
     }
 
     componentDidMount() {
+        this.refreshUsersClips();
+    }
+
+    refreshUsersClips = () => {
         const { dispatch } = this.props.navigation;
         let channel_name = this.props.navigation.state.params.display_name;
         dispatch(refreshUserClips(channel_name));
@@ -57,6 +61,7 @@ class UserClipsView extends Component {
                 onFetchNextPage={this.getMoreClips.bind(this)}
                 toggleOverlay={ this.toggleVideoOverlay.bind(this) } 
                 refreshing={this.props.refreshing}
+                onRefresh={this.refreshUsersClips}
                 loading={this.props.loading}
             />
         );                

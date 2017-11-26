@@ -7,6 +7,7 @@
 import React, { Component } from 'react';
 import {
   StyleSheet,
+  View
 } from 'react-native';
 import { 
   Container,
@@ -24,6 +25,9 @@ import {
 import TwitchAPI from '../lib/TwitchAPI';
 import ClipsList from '../components/ClipsList';
 import WebViewOverlay from '../components/WebViewOverlay';
+import { fetchTrendingClips, setTrendingClipsCount } from "../redux/actions/topClipsActions";
+import { connect } from 'react-redux';
+import Content from '../../native-base-theme/components/Content';
 
 const TAB1_NAME = "Most Viewed";
 const TAB2_NAME = "Trending";
@@ -35,105 +39,112 @@ const CLIPS_75 = "2";
 const CLIPS_100 = "3";
 const CANCEL_INDEX = 4;
 
-export default class TrendingClipsView extends Component {
-    static navigationOptions = {
-      drawerLabel: 'Top Clips'
+class TrendingClipsView extends Component {
+  static navigationOptions = ({ navigation }) => {
+    const { params } = navigation.state;
+    return {
+      drawerLabel: 'Top Clips',
+      title: 'Trending Clips',
+      headerTitle: <Title>Top Clips</Title>,
+      headerLeft: <Button onPress={() => { navigation.navigate('DrawerOpen'); }}><Icon name="menu" /></Button>,
     };
+  };
+  componentDidMount() {
+    this.fetchVideos();
+    this.props.navigation.setParams({ onFunnelClick: this._displayFilterOption });
+  }
 
-    constructor() {
-      super();
-      this.state = {
-        overlayUrl: 'https://clips.twitch.tv/embed?clip=AmazonianEncouragingLyrebirdAllenHuhu&tt_medium=clips_api&tt_content=embed'
-      };  
-    }
-
-    toggleVideoOverlay(url) {
-      this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});      
-    }
-
-    async getMostViewedClips() {
-      let results = await TwitchAPI.getTopClipsForUser({trending: false, count: this.state.count});
-      return results;
-    }
-
-    async getTrendingClips() {
-      let results = await TwitchAPI.getTopClipsForUser({trending: true, count: this.state.count});
-      return results;
-    }
-
-    displayClips(trending) {
-      if (trending) {
-        return(<ClipsList getClipsFunc={this.getTrendingClips.bind(this)} toggleOverlay={ this.toggleVideoOverlay.bind(this) } />);        
-      } else {
-        return(<ClipsList getClipsFunc={this.getMostViewedClips.bind(this)} toggleOverlay={ this.toggleVideoOverlay.bind(this) } />);
-      }
-    }
-
-    displayFilterOption(){
-      ActionSheet.show(
-        {
-          options: BUTTONS,
-          cancelButtonIndex: CANCEL_INDEX,
-          title: "Number of Clips"
-        },
-        this.userSelectedOption.bind(this)
-      )
-    }
-    
-    userSelectedOption(index) {
-      let count = this.state.count;
-      switch (index) {
-        case CLIPS_25:
-          count = 25;
-          break;
-          case CLIPS_50:
-          count = 50;
-          break;
-          case CLIPS_75:
-          count = 75;
-          break;
-          case CLIPS_100:
-          count = 100;
-          break;      
-        default:
-          break;
-      }
-
-      this.setState({
-        count: count
-      });
-    }
-
-    render() {
-      return (
-        <Container>
-          <Header hasTabs>
-            <Left>
-              <Button onPress={() => {this.props.navigation.navigate('DrawerOpen');} }>
-                <Icon name="menu" />
-              </Button>
-            </Left>
-            <Body>
-              <Title>Top Clips</Title>
-            </Body>
-            <Right>
-              <Button onPress={() => this.displayFilterOption() }>
-                <Icon name="ios-funnel" />
-              </Button>
-            </Right>
-          </Header>
-          <Tabs initialPage={0}>
-            <Tab heading={TAB1_NAME}>
-              {this.displayClips(false)}
-            </Tab>
-            <Tab heading={TAB2_NAME}>
-              {this.displayClips(true)}
-            </Tab>
-          </Tabs>
-        </Container>
-      );
+  componentDidUpdate(prevProps){
+    if (prevProps.trending_count !== this.props.trending_count) {
+      this.fetchVideos();
     }
   }
-  
-  const styles = StyleSheet.create({
-  });
+
+  toggleVideoOverlay(url) {
+    this.props.navigation.navigate('VideoPlayerView', { embedUrl: url });
+  }
+
+  fetchVideos = () => {
+    let { dispatch } = this.props.navigation;
+    dispatch(fetchTrendingClips(this.props.trending_count));
+  }
+
+  _displayFilterOption = () => {
+    ActionSheet.show(
+      {
+        options: BUTTONS,
+        cancelButtonIndex: CANCEL_INDEX,
+        title: "Number of Clips"
+      },
+      this._userSelectedOption.bind(this)
+    )
+  }
+
+  _userSelectedOption(index) {
+    let count = this.props.count;
+    switch (index) {
+      case CLIPS_25:
+        count = 25;
+        break;
+      case CLIPS_50:
+        count = 50;
+        break;
+      case CLIPS_75:
+        count = 75;
+        break;
+      case CLIPS_100:
+        count = 100;
+        break;
+      default:
+        break;
+    }
+    
+    let { dispatch } = this.props.navigation;
+    dispatch(setTrendingClipsCount(count));
+  }
+
+  _renderHeader = () => {
+    return (
+      <View style={styles.buttonArea}>
+        <Button light small onPress={ this._displayFilterOption } ><Icon name="ios-funnel" /></Button>
+      </View>
+    );
+  }
+
+  render() {
+    return (
+      <Container style={styles.container}>
+        <View>
+          <ClipsList
+            toggleOverlay={this.toggleVideoOverlay.bind(this)}
+            data={this.props.trending_clips}
+            loading={this.props.loading}
+            refreshing={this.props.refreshing}
+            renderHeader={this._renderHeader}
+          />
+        </View>
+      </Container>
+    );
+  }
+}
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: 'gray'
+  },
+  buttonArea: {
+    marginTop: 5,
+    marginLeft: 5,
+    marginRight: 5,
+    alignSelf: 'flex-end',
+  }
+});
+
+const mapStateToProps = state => ({
+    trending_clips: state.topClips.trending_clips,
+    trending_count: state.topClips.trending_count,
+    loading: state.topClips.loading,
+    refreshing: state.topClips.refreshing,
+});
+
+export default connect(mapStateToProps)(TrendingClipsView);

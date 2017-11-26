@@ -27,7 +27,6 @@ class FollowingView extends Component {
     }
 
     navigateUserView = (data) => {
-        console.log(data);
         this.props.navigation.navigate('UserView', data);
     }
 

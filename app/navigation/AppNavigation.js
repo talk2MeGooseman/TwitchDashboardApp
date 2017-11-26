@@ -1,12 +1,12 @@
 import { StackNavigator, DrawerNavigator, TabNavigator, TabBarTop } from 'react-navigation';
 import TrendingClipsView from '../views/TrendingClipsView';
+import PopularClipsView from '../views/PopularClipsView';
 import SplashScreen from '../views/SplashScreenView';
 import FollowingView from '../views/FollowingView';
 import UserClipsView from '../views/UserClipsView';
 import UserVideosView from '../views/UserVideosView';
 import VideoPlayerView from '../views/VideoPlayerView';
 import NativeBaseTheme from '../../native-base-theme/variables/platform';
-import {Title, Container} from 'native-base';
 
 // Tab View for Users 
 const UserViewTabNav = TabNavigator({
@@ -53,10 +53,53 @@ const FollowingStack = StackNavigator({
   }
 });
 
+// Tab View for Clips
+const ClipsViewTabNav = TabNavigator({
+  TrendingClipsView: { screen: TrendingClipsView},
+  PopularClipsView: { screen: PopularClipsView},
+}, {
+  tabBarComponent: TabBarTop,
+  tabBarPosition: 'top',
+  animationEnabled: true,
+  lazy: true,
+  backBehavior: 'none',
+  tabBarOptions: {
+    indicatorStyle: {
+      backgroundColor: 'white'
+    }, 
+    labelStyle: {
+      fontSize: NativeBaseTheme.tabFontSize,
+      fontWeight: 'bold'
+    },
+    style: {
+      backgroundColor: NativeBaseTheme.brandPrimary,
+    },
+  },
+});
+
+// Following Stack
+const TopClipsStack = StackNavigator({
+  ClipsViewTabNav : { screen: ClipsViewTabNav },
+}, {
+  mode: 'card',
+  headerMode: 'screen',
+  navigationOptions: {
+    headerStyle: {
+      backgroundColor: NativeBaseTheme.brandPrimary
+    },
+    headerTitleStyle: {
+      color: 'white'
+    },
+    headerBackTitleStyle: {
+      color: 'white'
+    }
+  }
+});
+
 // Drawer stack
 const DrawerStack = DrawerNavigator({
   FollowingStack: { screen: FollowingStack },
-  TrendingClipsView: { screen: TrendingClipsView },
+  TopClipsStack: { screen: TopClipsStack},
 });
 
 // Root Stack
