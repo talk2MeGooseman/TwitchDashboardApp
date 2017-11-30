@@ -17,7 +17,7 @@ import { fetchUsersVideos, refreshUserVideos} from '../redux/actions/userVideoAc
 class UserVideosView extends Component {
     static navigationOptions = ({navigation}) => {
         return({
-            headerTitle: navigation.state.params.username,
+            headerTitle: navigation.state.params.display_name,
             title: 'videos'
         });
     };

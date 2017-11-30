@@ -56,7 +56,7 @@ export default class TwitchAPI {
         result = await response.json();
 
         if (result.token.user_id) {
-          AsyncStorage.setItem('TWITCH:USER_ID:key', result.token.user_id);
+          AsyncStorage.setItem('TWITCH:USER_INFO:key', JSON.stringify(result.token));
         }
 
       } catch (error) {
@@ -89,19 +89,6 @@ export default class TwitchAPI {
         result = false;
       }
       return result; 
-    }
-
-    static async fetchUsersInfo(user_id) {
-        const response = await fetch(`${V5_TWITCH_BASE_URL}?id=${user_id}`, { 
-          method: 'GET',
-          headers: {
-            "client-id":CLIENT_ID,
-          }
-        }); 
-    
-        let result = await response.json();
-    
-        return result.data; 
     }
 
     static async v5fetchUsersInfo(user_id) {
@@ -241,5 +228,20 @@ export default class TwitchAPI {
         });
 
         return(followed); 
+    }
+
+    static async currentUserInfo() {
+        token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
+        const response = await fetch(`https://api.twitch.tv/helix/users`, { 
+          method: 'GET',
+          headers: {
+            "client-id":CLIENT_ID,
+            "Authorization": `Bearer ${token}`,
+          }
+        }); 
+    
+        let result = await response.json();
+    
+        return result.data; 
     }
 }

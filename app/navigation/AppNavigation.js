@@ -7,6 +7,8 @@ import UserClipsView from '../views/UserClipsView';
 import UserVideosView from '../views/UserVideosView';
 import VideoPlayerView from '../views/VideoPlayerView';
 import NativeBaseTheme from '../../native-base-theme/variables/platform';
+import UserStuffView from '../views/UserStuffView';
+import ChannelFollowersView from '../views/ChannelFollowersView';
 
 // Tab View for Users 
 const UserViewTabNav = TabNavigator({
@@ -96,10 +98,30 @@ const TopClipsStack = StackNavigator({
   }
 });
 
+const UserStuffStack = StackNavigator({
+  UserStuffView: { screen: UserStuffView},
+  ChannelFollowersView: { screen: ChannelFollowersView},
+}, {
+    mode: 'card',
+    headerMode: 'screen',
+    navigationOptions: {
+      headerStyle: {
+        backgroundColor: NativeBaseTheme.brandPrimary
+      },
+      headerTitleStyle: {
+        color: 'white'
+      },
+      headerBackTitleStyle: {
+        color: 'white'
+      }
+    }
+});
+
 // Drawer stack
 const DrawerStack = DrawerNavigator({
-  FollowingStack: { screen: FollowingStack },
   TopClipsStack: { screen: TopClipsStack},
+  FollowingStack: { screen: FollowingStack },
+  UserStuffStack: { screen: UserStuffStack},
 });
 
 // Root Stack
