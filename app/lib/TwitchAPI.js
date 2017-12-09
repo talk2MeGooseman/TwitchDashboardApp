@@ -105,6 +105,20 @@ export default class TwitchAPI {
         return result; 
     }
     
+    static async v5getChannelFollowers(channel_id, cursor='') {
+      const response = await fetch(`${V5_TWITCH_BASE_URL}/channels/${channel_id}/follows?limit=100&cursor=${cursor}`, { 
+          method: 'GET',
+          headers: {
+            "client-id": CLIENT_ID,
+            "accept": TWITCH_ACCEPT
+          }
+      });
+    
+      let result = await response.json();
+
+      return(result); 
+    }
+
     static async v5getUsersFollow(offset=0) {
       let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
       const response = await fetch(`${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels?limit=100&offset=${offset}`, { 
@@ -231,7 +245,7 @@ export default class TwitchAPI {
     }
 
     static async currentUserInfo() {
-        token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
+        let token = await AsyncStorage.getItem('TWITCH:ACCESS_TOKEN:key');
         const response = await fetch(`https://api.twitch.tv/helix/users`, { 
           method: 'GET',
           headers: {

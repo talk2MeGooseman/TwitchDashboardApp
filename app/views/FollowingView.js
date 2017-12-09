@@ -4,6 +4,7 @@ import { Title, Body, Spinner, Container, Text, Left, Button, Icon, Right, Actio
 import CONSTANTS from '../lib/Constants';
 import { connect } from 'react-redux';
 import { fetchFollowing, refreshFollowing, filterFollowing } from '../redux/actions/followActions';
+import UserListCell from '../components/UserListCell';
 
 class FollowingView extends Component {
     static navigationOptions = ({ navigation }) => {
@@ -30,20 +31,11 @@ class FollowingView extends Component {
 
     renderChannel(channelInfo) {
 
-        let image_url = channelInfo.channel.logo || "http://via.placeholder.com/300x533?text=?";
-
         return (
-            <ListItem avatar onPress={() => this.navigateUserView(channelInfo.channel)}>
-                <Left>
-                    <Thumbnail source={{ uri: image_url }} />
-                </Left>
-                <Body>
-                    <Text>{channelInfo.channel.display_name}</Text>
-                    <Text note>{channelInfo.channel.status}</Text>
-                    <Text note>Followers: {channelInfo.channel.followers}</Text>
-                </Body>
-                <Right />
-            </ListItem>
+            <UserListCell
+                onPress={this.navigateUserView}
+                channel={channelInfo.channel}
+            />
         );
     }
 
