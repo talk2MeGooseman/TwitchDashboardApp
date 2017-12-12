@@ -23,6 +23,14 @@ export default class ClipCard extends PureComponent {
     onImagePress: PropTypes.func.isRequired
   };
 
+  _formatVideoDuration(seconds) {
+    if (seconds < 60) {
+      return `${Math.round(seconds)} seconds`;
+    } else {
+      return `${Math.round(seconds/60)} mintues`;
+    }
+  }
+
   createFooter() {
     return (
       <CardItem>
@@ -35,7 +43,7 @@ export default class ClipCard extends PureComponent {
         <Right>
           <Button transparent>
             <Icon active name="timer" />
-            <Text>{Math.round(this.props.duration)} seconds</Text>
+            <Text>{this._formatVideoDuration(this.props.duration)}</Text>
           </Button>
         </Right>
       </CardItem>

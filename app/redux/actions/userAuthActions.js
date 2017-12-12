@@ -16,9 +16,16 @@ export const userAuthed = (loggedIn) => {
     }
 }
 
+export function isUserAuthed() {
+    return async (dispatch, getState) => {
+        let loggedIn = await isUserLoggedIn(getState())
+        return dispatch(userAuthed(loggedIn));
+    }
+}
+
 export function authUserIfNeeded() {
     return async (dispatch, getState) => {
-        let loggedIn = await shouldAuthUser(getState())
+        let loggedIn = await isUserLoggedIn(getState())
         if (!loggedIn) {
             return dispatch(getToken());
         } else {
@@ -35,7 +42,7 @@ function getToken() {
     }
 }
 
-async function shouldAuthUser() {
+async function isUserLoggedIn() {
     let twitchAPI = new TwitchAPI();
     let loggedIn = await twitchAPI.tokenValid();
     

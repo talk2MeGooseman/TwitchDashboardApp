@@ -1,28 +1,57 @@
 import React, { PureComponent } from 'react';
-import { StyleSheet} from 'react-native';
-import { Container, Spinner, H1} from 'native-base';
+import { StyleSheet, AsyncStorage, Text, TouchableOpacity, Image} from 'react-native';
+import { Container, Spinner, H1, Button} from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import { connect } from 'react-redux';
 import {
     authUserIfNeeded,
+    isUserAuthed,
 } from '../redux/actions/userAuthActions';
 
 class SplashScreen extends PureComponent {
     
     componentDidMount(){
-        // this.getToken();
+        // AsyncStorage.setItem('TWITCH:ACCESS_TOKEN:key', '');
+        const { dispatch } = this.props.navigation;
+        dispatch(isUserAuthed());
+    }
+
+    _loginUser = () => {
         const { dispatch } = this.props.navigation;
         dispatch(authUserIfNeeded());
     }
 
-    componentDidUpdate(prevProps, prevState) {
+    componentDidUpdate(prevProps) {
         if(this.props.loggedIn) {
-            this.startApp();
+            this._startApp();
         }
     }
 
-    startApp() {
+    _startApp() {
         this.props.navigation.navigate('DrawerStack');
+    }
+
+    _loggingIn() {
+        if (this.props.loggedIn) {
+            return (
+                <Col>
+                    <Row style={styles.centerContent}>
+                        <H1>LOGGING YOU IN...</H1>
+                    </Row>
+                    <Row style={styles.centerContent}>
+                        <Spinner color='white' />
+                    </Row>
+                </Col>
+            );
+        } else {
+            return(
+                <Col>
+                    <TouchableOpacity onPress={this._loginUser} style={styles.centerContent}>
+                        <Image source={require('../assets/connect_dark.png')} />
+                    </TouchableOpacity>
+                </Col>
+            );
+        }
     }
 
     render() {
@@ -31,14 +60,7 @@ class SplashScreen extends PureComponent {
                 <Grid>
                     <Row size={45}></Row>
                     <Row size={10}>
-                        <Col>
-                            <Row style={ styles.spinnerRow }>
-                                <H1>LOGGING YOU IN...</H1>
-                            </Row>
-                            <Row style={ styles.spinnerRow }>
-                                <Spinner color='white'/>                        
-                            </Row>
-                        </Col>
+                        {this._loggingIn()}
                     </Row>
                     <Row size={45}></Row>
                 </Grid>
@@ -48,11 +70,12 @@ class SplashScreen extends PureComponent {
 }
 
 const styles = StyleSheet.create({
-    spinnerRow: {
-        justifyContent: 'center'
+    centerContent: {
+        justifyContent: 'center',
+        alignSelf: 'center',
     },
     container: {
-        backgroundColor: 'blue'
+        backgroundColor: 'grey'
     }
 });
 

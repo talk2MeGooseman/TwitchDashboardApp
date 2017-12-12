@@ -64,6 +64,12 @@ class UserStuffView extends Component {
         this.props.navigation.navigate('ChannelVideosView');
     }
 
+    _onClipsPress = () => {
+        this.props.navigation.navigate('ChannelClipsView', {
+            display_name: this.props.navigation.state.params.username
+        });
+    }
+
     componentDidMount(){
         this._setTitleBarName();
         this._getUserInfo();
@@ -146,7 +152,7 @@ class UserStuffView extends Component {
                             </TouchableOpacity>
                         </Card>
                         <Card style={ styles.cardStyles }>
-                            <TouchableOpacity onPress={this._onFollowersPress}>
+                            <TouchableOpacity onPress={this._onClipsPress}>
                                 <CardItem>
                                     <Body>
                                         <Text style={ styles.titleTextStyles }>

@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { View, FlatList, StyleSheet } from "react-native";
+import { View, FlatList, StyleSheet, AsyncStorage } from "react-native";
 import { Text } from "native-base";
 import { connect } from "react-redux";
+import { fetchUsersVideos } from '../redux/actions/userVideoActions'
 import ClipCard from "../components/ClipCard";
 import EmptyListText from "../components/EmptyListText";
 import ListFooter from "../components/ListFooter";
@@ -14,23 +15,17 @@ class ChannelVideosView extends Component {
         });
     };
 
-    async _refreshUsersVideos() {
-        let offset = this.props.videos.length;
-        let channel_id = this.props.navigation.state.params._id;
-        let { dispatch } = this.props.navigation;
-        dispatch(refreshUserVideos(channel_id, offset));
-    }
-
-    _endReached = () => {
+    _endReached = async () => {
         if(this.props.loading) return;                
         if(this.props.videos.length >= this.props.total) {
             return;
         }
-
+        let result = await AsyncStorage.getItem('TWITCH:USER_INFO:key');
+        let userInfo = JSON.parse(result);
         let { dispatch } = this.props.navigation;
+
         let offset = this.props.videos.length;
-        let channel_id = this.props.navigation.state.params._id;
-        dispatch(fetchUsersVideos(channel_id, offset));
+        dispatch(fetchUsersVideos(userInfo.user_id, offset, 'current'));
     }
 
     _toggleVideoOverlay = (url) => {
@@ -75,12 +70,10 @@ class ChannelVideosView extends Component {
                     data={this.props.videos}
                     keyExtractor={(item) => item._id}
                     renderItem={this._addVideoCard} 
-                    // onEndReached={this.endReached}
-                    // onEndReachedThreshold={0.50}
-                    // ListFooterComponent={this.renderFooter()}
-                    // ListEmptyComponent={this.renderEmptyList()}
-                    // onRefresh={this.onRefresh}
-                    // refreshing={this.props.refreshing}
+                    onEndReached={this._endReached}
+                    onEndReachedThreshold={0.50}
+                    ListFooterComponent={this._renderFooter()}
+                    ListEmptyComponent={this._renderEmptyList()}
                 /> 
             </View>
         )

@@ -10,6 +10,7 @@ import NativeBaseTheme from '../../native-base-theme/variables/platform';
 import UserStuffView from '../views/UserStuffView';
 import ChannelFollowersView from '../views/ChannelFollowersView';
 import ChannelVideosView from '../views/ChannelVideosView';
+import LoggingOutView from '../views/LoggingOutView';
 
 // Tab View for Users 
 const UserViewTabNav = TabNavigator({
@@ -103,6 +104,7 @@ const UserStuffStack = StackNavigator({
   UserStuffView: { screen: UserStuffView},
   ChannelFollowersView: { screen: ChannelFollowersView},
   ChannelVideosView: { screen: ChannelVideosView },
+  ChannelClipsView: { screen: UserClipsView },
 }, {
     mode: 'card',
     headerMode: 'screen',
@@ -124,6 +126,10 @@ const DrawerStack = DrawerNavigator({
   TopClipsStack: { screen: TopClipsStack},
   FollowingStack: { screen: FollowingStack },
   UserStuffStack: { screen: UserStuffStack},
+  LogOut: { screen: LoggingOutView },
+}, {
+  navigationOptions: {
+  }
 });
 
 // Root Stack
