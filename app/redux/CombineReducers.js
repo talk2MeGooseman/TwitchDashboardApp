@@ -108,28 +108,28 @@ function topClips(state = { top_clips: [], trending_clips: [], suggested_count: 
     case FETCHING_TRENDING_CLIPS:
       return Object.assign({}, state, { loading: true, trending_clips: []});
     case TRENDING_CLIPS_COUNT:
-      return Object.assign({}, state, { trending_count: action.trending_count});
+      return Object.assign({}, state, action);
     case SUGGESTED_TOP_CLIPS_COUNT:
-      return Object.assign({}, state, { suggested_count: action.suggested_count});
+      return Object.assign({}, state, action);
     case SUGGESTED_TOP_CLIPS_RESPONSE:
-      return Object.assign({}, state, { top_clips: action.top_clips, loading: false, refreshing: false });
+      return Object.assign({}, state, { loading: false, refreshing: false }, action);
     case TRENDING_CLIPS_RESPONSE:
-      return Object.assign({}, state, { trending_clips: action.trending_clips, loading: false, refreshing: false });
+      return Object.assign({}, state, { loading: false, refreshing: false }, action);
     default:
       return state;
   }
 }
 
-function userStuff(state = { userInfo: {}, loadingUserInfo: false, followersData: {}, loadingFollowers: false }, action) {
+function userStuff(state = { userInfo: {}, loadingUserInfo: false, totalFollowers: null, follows: [], cursor: '', loadingFollowers: false }, action) {
   switch (action.type) {
     case SET_USERS_INFO:
-      return Object.assign({}, state, { loadingUserInfo: false, userInfo: action.userInfo});
+      return Object.assign({}, state, action, { loadingUserInfo: false });
     case REQUESTING_USER_INFO:
       return Object.assign({}, state, { loadingUserInfo: true });
     case REQUESTING_CHANNELS_FOLLOWERS:
       return Object.assign({}, state, { loadingFollowers: true });
     case CHANNEL_FOLLOWERS_RESPONSE:
-      return Object.assign({}, state, { loadingFollowers: false, followersData: action.followersData });
+      return Object.assign({}, state, action, { loadingFollowers: false, follows: state.follows.concat(action.follows) });
     default:
       return state;
   }

@@ -43,20 +43,22 @@ export function requestUserInfo() {
 function channelFollowersResponse(data) {
     return {
         type: CHANNEL_FOLLOWERS_RESPONSE,
-        followersData: data
+        totalFollowers: data._total,
+        follows: data.follows,
+        followCursor: data._cursor != null ? data._cursor : false,
     }
 }
 
-function fetchChannelFollowers(channel_id) {
+function fetchChannelFollowers(channel_id, cursor) {
     return async (dispatch, getState) => {
-        let result = await TwitchAPI.v5getChannelFollowers(channel_id);
+        let result = await TwitchAPI.v5getChannelFollowers(channel_id, cursor);
         dispatch(channelFollowersResponse(result));
     }
 }
 
-export function requestUsersFollowers(channel_id) {
+export function requestUsersFollowers(channel_id, cursor='') {
     return async (dispatch) => {
         dispatch(requestingChannelsFollowers());
-        dispatch(fetchChannelFollowers(channel_id));
+        dispatch(fetchChannelFollowers(channel_id, cursor));
     }
 }

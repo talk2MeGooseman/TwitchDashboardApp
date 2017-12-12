@@ -60,6 +60,10 @@ class UserStuffView extends Component {
         this.props.navigation.navigate('ChannelFollowersView');
     }
 
+    _onVideosPress = () => {
+        this.props.navigation.navigate('ChannelVideosView');
+    }
+
     componentDidMount(){
         this._setTitleBarName();
         this._getUserInfo();
@@ -154,7 +158,7 @@ class UserStuffView extends Component {
                             </TouchableOpacity>
                         </Card>
                         <Card style={ styles.cardStyles }>
-                            <TouchableOpacity onPress={this._onFollowersPress}>
+                            <TouchableOpacity onPress={this._onVideosPress}>
                                 <CardItem>
                                     <Body>
                                         <Text style={ styles.titleTextStyles }>
@@ -201,7 +205,7 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => ({
     titleImage: state.userStuff.userInfo.profile_image_url,
-    followersCount: state.userStuff.followersData['_total'],
+    followersCount: state.userStuff.totalFollowers,
     loadingFollowers: state.userStuff.loadingFollowers,
     loadingVideos: state.currentUserVideos.loading,
     videosCount: state.currentUserVideos.total,

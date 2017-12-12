@@ -9,6 +9,7 @@ import VideoPlayerView from '../views/VideoPlayerView';
 import NativeBaseTheme from '../../native-base-theme/variables/platform';
 import UserStuffView from '../views/UserStuffView';
 import ChannelFollowersView from '../views/ChannelFollowersView';
+import ChannelVideosView from '../views/ChannelVideosView';
 
 // Tab View for Users 
 const UserViewTabNav = TabNavigator({
@@ -101,6 +102,7 @@ const TopClipsStack = StackNavigator({
 const UserStuffStack = StackNavigator({
   UserStuffView: { screen: UserStuffView},
   ChannelFollowersView: { screen: ChannelFollowersView},
+  ChannelVideosView: { screen: ChannelVideosView },
 }, {
     mode: 'card',
     headerMode: 'screen',
