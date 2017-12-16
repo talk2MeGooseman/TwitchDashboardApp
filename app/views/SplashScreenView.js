@@ -3,15 +3,16 @@ import { StyleSheet, AsyncStorage, Text, TouchableOpacity, Image} from 'react-na
 import { Container, Spinner, H1, Button} from 'native-base';
 import { Col, Row, Grid } from 'react-native-easy-grid';
 import { connect } from 'react-redux';
+import { NavigationActions  } from "react-navigation";
 import {
     authUserIfNeeded,
     isUserAuthed,
 } from '../redux/actions/userAuthActions';
+import { initBookmarks } from '../redux/actions/bookmarkActions';
 
 class SplashScreen extends PureComponent {
     
     componentDidMount(){
-        // AsyncStorage.setItem('TWITCH:ACCESS_TOKEN:key', '');
         const { dispatch } = this.props.navigation;
         dispatch(isUserAuthed());
     }
@@ -27,8 +28,19 @@ class SplashScreen extends PureComponent {
         }
     }
 
-    _startApp() {
-        this.props.navigation.navigate('DrawerStack');
+    async _startApp() {
+        const { dispatch } = this.props.navigation;
+        const resetAction = NavigationActions.reset({
+            index: 0,
+            key: null, // Needed to go back to screen in separate stack
+            actions: [
+              NavigationActions.navigate({ routeName: 'DrawerStack'})
+            ]
+        })
+        dispatch(resetAction);
+        
+        const sData = await AsyncStorage.getItem('TWITCH:BOOKMARKS:key');
+        if(sData) dispatch(initBookmarks(JSON.parse(sData)));
     }
 
     _loggingIn() {

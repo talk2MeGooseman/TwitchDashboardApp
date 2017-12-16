@@ -1,3 +1,4 @@
+import { AsyncStorage } from 'react-native';
 import AppNavigation from '../navigation/AppNavigation';
 import {
   combineReducers
@@ -38,6 +39,7 @@ import {
   REQUESTING_CHANNELS_FOLLOWERS,
 } from "./actions/userStuffAction";
 import CONSTANTS from '../lib/Constants';
+import { ADD_BOOKMARK, REMOVE_BOOKMARK, INIT_BOOKMARKS } from './actions/bookmarkActions';
 
 const navReducer = (state, action) => {
   const newState = AppNavigation.router.getStateForAction(action, state)
@@ -135,6 +137,27 @@ function userStuff(state = { userInfo: {}, loadingUserInfo: false, totalFollower
   }
 }
 
+function bookmarks(state = { bookmarks: {}}, action) {
+  let newState = JSON.parse(JSON.stringify(state));
+  let data =  Object.assign({}, action.data);
+
+  switch (action.type) {
+    case ADD_BOOKMARK: {
+      newState.bookmarks[data.id] = data;
+      AsyncStorage.setItem('TWITCH:BOOKMARKS:key', JSON.stringify(newState));
+      return newState;
+    }
+    case REMOVE_BOOKMARK: 
+      delete newState.bookmarks[data.id];
+      AsyncStorage.setItem('TWITCH:BOOKMARKS:key', JSON.stringify(newState));
+      return newState;
+    case INIT_BOOKMARKS:
+      return action.bookmarks;
+    default:
+      return state;
+  }
+}
+
 const rootReducer = combineReducers({
   nav: navReducer,
   authTwitchApp,
@@ -144,6 +167,7 @@ const rootReducer = combineReducers({
   topClips,
   userStuff,
   currentUserVideos: userVideoActions('current'),
+  bookmarks,
 });
 
 export default rootReducer;

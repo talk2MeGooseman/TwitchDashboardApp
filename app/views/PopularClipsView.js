@@ -19,6 +19,7 @@ import {
 import ClipsList from '../components/ClipsList';
 import { fetchSuggestedTopClips, setSuggestedClipsCount } from "../redux/actions/topClipsActions";
 import { connect } from 'react-redux';
+import { addBookmark, removeBookmark } from '../redux/actions/bookmarkActions';
 
 
 const BUTTONS = ["25 Clips", "50 Clips", "75 Clips", "100 clips", "Cancel"];
@@ -101,6 +102,25 @@ class PopularClipsView extends Component {
     );
   }
 
+  _onBookmarkPress(id) {
+    const data = this.props.top_clips.find((clip) => {
+      return clip.tracking_id === id;
+    });
+    
+    if (!data) {
+      return;
+    }
+
+    const { dispatch } = this.props.navigation;
+    if (this.props.bookmarks[id]) {
+      data.id = id;
+      dispatch(removeBookmark(data));
+    } else {
+      data.id = id;
+      dispatch(addBookmark(data)); 
+    }
+  }
+
   render() {
     return (
       <Container>
@@ -110,6 +130,8 @@ class PopularClipsView extends Component {
           loading={this.props.loading}
           refreshing={this.props.refreshing}
           renderHeader={this._renderHeader}
+          onBookmarkPress={(id) => this._onBookmarkPress(id) }
+          bookmarks={this.props.bookmarks}
         />
       </Container>
     );
@@ -133,6 +155,7 @@ const mapStateToProps = state => ({
     suggested_count: state.topClips.suggested_count,
     loading: state.topClips.loading,
     refreshing: state.topClips.refreshing,
+    bookmarks: state.bookmarks.bookmarks,
 });
 
 export default connect(mapStateToProps)(PopularClipsView);

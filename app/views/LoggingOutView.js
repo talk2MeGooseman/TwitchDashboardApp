@@ -11,7 +11,7 @@ class LoggingOutView extends PureComponent {
     };
 
     componentDidMount() {
-        AsyncStorage.setItem('TWITCH:ACCESS_TOKEN:key', '', () => {
+        AsyncStorage.clear(() => {
             const resetAction = NavigationActions.reset({
                 index: 0,
                 key: null, // Needed to go back to screen in separate stack

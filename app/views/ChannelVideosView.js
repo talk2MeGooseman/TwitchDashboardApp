@@ -6,6 +6,7 @@ import { fetchUsersVideos } from '../redux/actions/userVideoActions'
 import ClipCard from "../components/ClipCard";
 import EmptyListText from "../components/EmptyListText";
 import ListFooter from "../components/ListFooter";
+import { removeBookmark, addBookmark } from "../redux/actions/bookmarkActions";
 
 class ChannelVideosView extends Component {
     static navigationOptions = ({navigation}) => {
@@ -32,10 +33,35 @@ class ChannelVideosView extends Component {
         this.props.navigation.navigate('VideoPlayerView', { embedUrl: url});
     }
 
+    _onBookmarkPress = (id) => {
+        const data = this.props.videos.find((video) => {
+          return video._id === id;
+        });
+        
+        if (!data) {
+          return;
+        }
+    
+        const { dispatch } = this.props.navigation;
+        if (this.props.bookmarks[id]) {
+          data.id = id;
+          dispatch(removeBookmark(data));
+        } else {
+          data.id = id;
+          dispatch(addBookmark(data)); 
+        }
+    }
+
     _addVideoCard = ({item: video}) => {
+        let bookmarked = false;
+        if (this.props.bookmarks) {
+            const bookmarks = this.props.bookmarks;
+            bookmarked = bookmarks[video._id] ? true : false;
+        }
+
         const passProps = {
             username: video.channel.display_name,
-            key: video._id,
+            id: video._id,
             user_id: `${video.channel._id}`,
             image_url: video.preview.medium,
             views: video.views,
@@ -44,7 +70,10 @@ class ChannelVideosView extends Component {
             created_at: video.created_at,
             url: video.url,
             title: video.title,
-            onImagePress: this._toggleVideoOverlay
+            onImagePress: this._toggleVideoOverlay,
+            broadcast_type: video.broadcast_type,
+            onBookmarkPress: (id) => { this._onBookmarkPress(id) },
+            bookmarked: bookmarked,
         };
 
         return <ClipCard { ...passProps } />;
@@ -91,5 +120,6 @@ const stateToProps = (state) => ({
     total: state.currentUserVideos.total,
     loading: state.currentUserVideos.loading,
     refreshing: state.currentUserVideos.refreshing,
+    bookmarks: state.bookmarks.bookmarks,
 });
 export default connect(stateToProps)(ChannelVideosView);

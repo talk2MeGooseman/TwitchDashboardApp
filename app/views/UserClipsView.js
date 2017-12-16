@@ -6,6 +6,7 @@ import {
     Container,
 } from 'native-base';
 import { fetchUsersClips, fetchingUserClips, refreshUserClips } from '../redux/actions/userClipsActions';
+import { removeBookmark, addBookmark } from '../redux/actions/bookmarkActions';
 
 class UserClipsView extends Component {
     static navigationOptions = ({navigation}) => {
@@ -40,6 +41,26 @@ class UserClipsView extends Component {
         dispatch(refreshUserClips(channel_name));
     }
 
+    _onBookmarkPress = (id) => {
+        const data = this.props.clips.find((clip) => {
+          return clip.tracking_id === id;
+        });
+        
+        if (!data) {
+          return;
+        }
+    
+    
+        const { dispatch } = this.props.navigation;
+        if (this.props.bookmarks[id]) {
+          data.id = id;
+          dispatch(removeBookmark(data));
+        } else {
+          data.id = id;
+          dispatch(addBookmark(data)); 
+        }
+    }
+
     displayClips() {
         return(
             <ClipsList 
@@ -49,6 +70,8 @@ class UserClipsView extends Component {
                 refreshing={this.props.refreshing}
                 onRefresh={this.refreshUsersClips}
                 loading={this.props.loading}
+                onBookmarkPress={(id) => { this._onBookmarkPress(id)} }
+                bookmarks={this.props.bookmarks}
             />
         );                
     }
@@ -72,6 +95,7 @@ const mapStateToProps = state => ({
     cursor: state.userClips.cursor,
     loading: state.userClips.loading,
     refreshing: state.userClips.refreshing,
+    bookmarks: state.bookmarks.bookmarks,
 });
 
 export default connect(mapStateToProps)(UserClipsView);

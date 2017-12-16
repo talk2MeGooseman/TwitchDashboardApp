@@ -19,6 +19,7 @@ import {
 import ClipsList from '../components/ClipsList';
 import { fetchTrendingClips, setTrendingClipsCount } from "../redux/actions/topClipsActions";
 import { connect } from 'react-redux';
+import { addBookmark, removeBookmark } from '../redux/actions/bookmarkActions';
 
 const TAB1_NAME = "Most Viewed";
 const TAB2_NAME = "Trending";
@@ -102,6 +103,26 @@ class TrendingClipsView extends Component {
     );
   }
 
+  _onBookmarkPress = (id) => {
+    const data = this.props.trending_clips.find((clip) => {
+      return clip.tracking_id === id;
+    });
+    
+    if (!data) {
+      return;
+    }
+
+
+    const { dispatch } = this.props.navigation;
+    if (this.props.bookmarks[id]) {
+      data.id = id;
+      dispatch(removeBookmark(data));
+    } else {
+      data.id = id;
+      dispatch(addBookmark(data)); 
+    }
+  }
+
   render() {
     return (
       <Container style={styles.container}>
@@ -112,6 +133,8 @@ class TrendingClipsView extends Component {
             loading={this.props.loading}
             refreshing={this.props.refreshing}
             renderHeader={this._renderHeader}
+            onBookmarkPress={(id) => { this._onBookmarkPress(id)} }
+            bookmarks={this.props.bookmarks}
           />
         </View>
       </Container>
@@ -136,6 +159,7 @@ const mapStateToProps = state => ({
     trending_count: state.topClips.trending_count,
     loading: state.topClips.loading,
     refreshing: state.topClips.refreshing,
+    bookmarks: state.bookmarks.bookmarks
 });
 
 export default connect(mapStateToProps)(TrendingClipsView);

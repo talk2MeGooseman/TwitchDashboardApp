@@ -120,7 +120,8 @@ export default class TwitchAPI {
     }
 
     static async v5getUsersFollow(offset=0) {
-      let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
+      let userInfo = await AsyncStorage.getItem('TWITCH:USER_INFO:key');
+      let { user_id } = JSON.parse(userInfo);
       const response = await fetch(`${V5_TWITCH_BASE_URL}/users/${user_id}/follows/channels?limit=100&offset=${offset}`, { 
           method: 'GET',
           headers: {
@@ -130,12 +131,13 @@ export default class TwitchAPI {
       });
     
       let result = await response.json();
-
+      console.log(result);
       return(result); 
     }
 
     static async v5getTopClips({channel_name, period='month', cursor=''}) {
-      let user_id = await AsyncStorage.getItem('TWITCH:USER_ID:key');
+      let userInfo = await AsyncStorage.getItem('TWITCH:USER_INFO:key');
+      let { user_id } = JSON.parse(userInfo);
       const response = await fetch(`${V5_TWITCH_BASE_URL}/clips/top?channel=${channel_name}&limit=25&period=${period}&cursor=${cursor}`, { 
           method: 'GET',
           headers: {
@@ -145,7 +147,9 @@ export default class TwitchAPI {
       });
     
       let result = await response.json();
-
+      if (result.status === 400) {
+        alert('Sorry Something Went Wrong :(');
+      }
       return(result); 
     }
 

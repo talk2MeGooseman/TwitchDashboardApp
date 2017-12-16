@@ -11,6 +11,7 @@ import UserStuffView from '../views/UserStuffView';
 import ChannelFollowersView from '../views/ChannelFollowersView';
 import ChannelVideosView from '../views/ChannelVideosView';
 import LoggingOutView from '../views/LoggingOutView';
+import FavoritesView from '../views/FavoritesView';
 
 // Tab View for Users 
 const UserViewTabNav = TabNavigator({
@@ -121,15 +122,31 @@ const UserStuffStack = StackNavigator({
     }
 });
 
+const FavoritesStack = StackNavigator({
+  FavoritesView: { screen: FavoritesView},
+}, {
+    mode: 'card',
+    headerMode: 'screen',
+    navigationOptions: {
+      headerStyle: {
+        backgroundColor: NativeBaseTheme.brandPrimary
+      },
+      headerTitleStyle: {
+        color: 'white'
+      },
+      headerBackTitleStyle: {
+        color: 'white'
+      }
+    }
+});
+
 // Drawer stack
 const DrawerStack = DrawerNavigator({
   TopClipsStack: { screen: TopClipsStack},
   FollowingStack: { screen: FollowingStack },
   UserStuffStack: { screen: UserStuffStack},
+  FavoritesStack: { screen: FavoritesStack },
   LogOut: { screen: LoggingOutView },
-}, {
-  navigationOptions: {
-  }
 });
 
 // Root Stack

@@ -17,11 +17,13 @@ import TwitchAPI from '../lib/TwitchAPI';
 export default class ClipsList extends Component {
     static propTypes = {
         toggleOverlay: PropTypes.func.isRequired,
+        onBookmarkPress: PropTypes.func.isRequired,
         onFetchNextPage: PropTypes.func,
         onRefresh: PropTypes.func,
         data: PropTypes.array,
         loading: PropTypes.bool,
         refreshing: PropTypes.bool,
+        bookmarks: PropTypes.object,
     };
 
     endReached = () => {
@@ -33,20 +35,29 @@ export default class ClipsList extends Component {
         }
     }
 
-    addClip = ({item: clip}) => {
+    addClip({item: video}) {
+        let bookmarked = false;
+        if (this.props.bookmarks) {
+            const bookmarks = this.props.bookmarks;
+            bookmarked = bookmarks[video.tracking_id] ? true : false;
+        }
+
         const passProps = {
-            username: clip.broadcaster.display_name,
-            key: clip.tracking_id,
-            user_id: clip.broadcaster.id,
-            image_url: clip.thumbnails.medium,
-            views: clip.views,
-            duration: clip.duration,
-            game_title: clip.game,
-            created_at: clip.created_at,
-            url: clip.url,
-            embed_url: clip.embed_url,
-            title: clip.title,
-            onImagePress: this.props.toggleOverlay
+            username: video.broadcaster.display_name,
+            id: video.tracking_id,
+            user_id: video.broadcaster.id,
+            image_url: video.thumbnails.medium,
+            views: video.views,
+            duration: video.duration,
+            game_title: video.game,
+            created_at: video.created_at,
+            url: video.url,
+            embed_url: video.embed_url,
+            title: video.title,
+            onImagePress: this.props.toggleOverlay,
+            onBookmarkPress: this.props.onBookmarkPress,
+            broadcast_type: 'highlight',
+            bookmarked: bookmarked,
         };
 
         return <ClipCard { ...passProps } />;
@@ -89,7 +100,7 @@ export default class ClipsList extends Component {
             <FlatList
                 style={styles.content}
                 data={this.props.data}
-                renderItem={this.addClip}
+                renderItem={(item) => this.addClip(item) }
                 keyExtractor={(item) => item.tracking_id}
                 onEndReached={this.endReached}
                 onEndReachedThreshold={0.80}
@@ -98,6 +109,7 @@ export default class ClipsList extends Component {
                 ListEmptyComponent={this.renderEmptyList}
                 onRefresh={this.onRefresh}
                 refreshing={this.props.refreshing}
+                extraData={this.props.bookmarks}
             />            
         );  
     }
